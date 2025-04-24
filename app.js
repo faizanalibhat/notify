@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const morgan = require("morgan");
 const { errorHandler } = require("./middlewares/error");
 const router = require("./routes/index");
 
@@ -14,6 +15,7 @@ const notificationWorker = require("./workers/notification.worker");
 
 const app = express();
 
+app.use(morgan.tiny());
 app.use(bodyParser.json());
 
 app.use("/api", router);
