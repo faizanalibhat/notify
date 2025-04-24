@@ -15,7 +15,7 @@ const notificationWorker = require("./workers/notification.worker");
 
 const app = express();
 
-app.use(morgan.tiny());
+app.use(morgan('tiny'));
 app.use(bodyParser.json());
 
 app.use("/api", router);
