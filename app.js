@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const { errorHandler } = require("./middlewares/error");
 const router = require("./routes/index");
 
+
+
 // workers
 const emailWorker = require("./workers/email/email.worker");
 const activityWorker = require("./workers/activity/worker");
