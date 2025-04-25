@@ -4,7 +4,7 @@ const Notification = require("../models/notifications.model");
 
 const createNotification = async (orgId, notification) => {
     try {
-        const created = await Notification.create(notification);
+        const created = await Notification.create({ orgId, ...notification });
 
         return created;
     }

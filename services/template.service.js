@@ -82,10 +82,12 @@ const testTemplateById = async (orgId, id, context, reciever, channels=[]) => {
     const { slug } = template.toJSON();
 
     const payload = {
+        orgId,
         slug,
         context,
         reciever,
         notification: {},
+        authContext: {},
         sender: {},
         store: false,
         channels: channels 

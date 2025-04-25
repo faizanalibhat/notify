@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const { errorHandler } = require("./middlewares/error");
 const router = require("./routes/index");
 const cors = require("cors");
+const { authenticateService } = require("./middlewares/auth");
 
 
 // workers
@@ -19,7 +20,7 @@ app.use(cors());
 app.use(morgan('tiny'));
 app.use(bodyParser.json());
 
-app.use("/notify/api", router);
+app.use("/notify/api", authenticateService(), router);
 
 // connect mongodb
 mongoose.connect(process.env.NOTIFY_MONGODB_URL)

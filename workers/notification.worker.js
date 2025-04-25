@@ -5,14 +5,31 @@ const notificationService = require("../services/notification.service");
 
 async function notificationHandler(payload, msg, channel) {
     try {
-        const { slug, context={}, reciever, sender, notification, store=true, channels = [] } = payload;
+        const { orgId, notification, store=true, channels = [], authContext } = payload;
 
         for (let channel of channels) {
             await mqbroker.publish("notification", `notification.${channel}`, payload);
         }
 
         if (store && Object.keys(notification || {})?.length) {
-            const noti = await notificationService.createNotification(notification);
+
+            let user = notification.user
+
+            if (authContext) {
+                user = {
+                    name: authContext?.firstName + " " + authContext?.lastName,
+                    email: authContext?.email,
+                    userId: authContext?._id
+                }
+            }
+
+            let obj = {
+                orgId,
+                ...notification,
+                ...(user ? user : {})
+            };
+
+            const noti = await notificationService.createNotification(orgId, obj);
 
             console.log("[+] NOTIFICATION STORED ", noti);
         }
