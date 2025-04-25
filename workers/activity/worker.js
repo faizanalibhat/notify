@@ -6,10 +6,13 @@ const activityService = require("../../services/activity.service");
 
 async function activityLogsHandler(payload, msg, channel) {
     try {
-        const { headers, query, body, params, authenticatedService, origin } = payload;
+        const { headers, query, body, params, authContext, origin, method, path, originalUrl, ip } = payload;
 
-        // get user details
-        const { orgId, firstName, lastName, email } = authenticatedService;
+        const { orgId, firstName, lastName, email } = authContext;
+
+        const endpoint = path;
+
+        const action = activityService.parseActivity(endpoint, method);
 
         const activity = {
             user: {
@@ -17,8 +20,8 @@ async function activityLogsHandler(payload, msg, channel) {
                 email: email
             },
             orgId: orgId,
-            action: "An Action was taken",
-            raw: payload,
+            action: action,
+            raw: { query, body, params },
             origin: origin
         };
 

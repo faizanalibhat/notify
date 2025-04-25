@@ -5,7 +5,7 @@ const notificationService = require("../services/notification.service");
 
 async function notificationHandler(payload, msg, channel) {
     try {
-        const { orgId, notification, store=true, channels = [], authContext } = payload;
+        const { orgId, notification, store, channels = [], authContext, reciever } = payload;
 
         for (let channel of channels) {
             await mqbroker.publish("notification", `notification.${channel}`, payload);
@@ -23,10 +23,13 @@ async function notificationHandler(payload, msg, channel) {
                 }
             }
 
+            let sentTo = Array.isArray(reciever) ? reciever : [reciever];
+
             let obj = {
                 orgId,
                 ...notification,
-                ...(user ? user : {})
+                ...(user ? { createdBy: user } : {}),
+                sentTo 
             };
 
             const noti = await notificationService.createNotification(orgId, obj);

@@ -9,6 +9,13 @@ const userSchema = new mongoose.Schema({
 
 
 
+const resourceMeta = new mongoose.Schema({
+    product: { type: String },
+    resource: { type: String },
+    action: { type: String },
+}, { _id: false });
+
+
 const notificationSchema = new mongoose.Schema({
     orgId: { type: String, },
     type: { type: String },
@@ -18,7 +25,9 @@ const notificationSchema = new mongoose.Schema({
     seen: { type: Boolean, default: false },
     seenBy: { type: [String], default: [] },
     resourceUrl: { type: String },
-    user: { type: userSchema },
+    createdBy: { type: userSchema },
+    resourceMeta: { type: resourceMeta },
+    sentTo: { type: [mongoose.Schema.Types.Mixed], default: [] },
 }, { timestamps: true, strict: false });
 
 
