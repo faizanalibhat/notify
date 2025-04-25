@@ -12,6 +12,8 @@ async function activityLogsHandler(payload, msg, channel) {
 
         const endpoint = path;
 
+        console.log(endpoint, method);
+
         const action = activityService.parseActivity(endpoint, method);
 
         const activity = {
