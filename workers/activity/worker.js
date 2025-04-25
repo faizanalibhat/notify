@@ -19,6 +19,12 @@ async function activityLogsHandler(payload, msg, channel) {
             return;
         }
 
+
+        const saveHeaders = {
+            'user-agent': headers['user-agent'],
+            'host': headers['host'],
+        }
+
         const activity = {
             user: {
                 name: firstName + " " + lastName,
@@ -26,7 +32,7 @@ async function activityLogsHandler(payload, msg, channel) {
             },
             orgId: orgId,
             action: action,
-            raw: { query, body, params },
+            raw: { query, body, params, ip, headers: saveHeaders, originalUrl, method },
             origin: origin
         };
 
