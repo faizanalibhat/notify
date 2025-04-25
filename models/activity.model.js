@@ -9,8 +9,8 @@ const userSchema = new mongoose.Schema({
 
 
 const activitySchema = new mongoose.Schema({
-    orgId: { type: String, },
-    action: { type: String },
+    orgId: { type: String, required: true },
+    action: { type: String, required: true },
     origin: { type: String, required: true },
     user: { type: userSchema },
     raw: mongoose.Schema.Types.Mixed,
