@@ -16,6 +16,11 @@ async function activityLogsHandler(payload, msg, channel) {
 
         const action = activityService.parseActivity(endpoint, method);
 
+        if (!action) {
+            channel.ack(msg);
+            return;
+        }
+
         const activity = {
             user: {
                 name: firstName + " " + lastName,
