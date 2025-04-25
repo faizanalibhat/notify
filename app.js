@@ -19,7 +19,7 @@ app.use(cors());
 app.use(morgan('tiny'));
 app.use(bodyParser.json());
 
-app.use("/api", router);
+app.use("/notify/api", router);
 
 // connect mongodb
 mongoose.connect(process.env.NOTIFY_MONGODB_URL)
