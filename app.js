@@ -7,7 +7,6 @@ const router = require("./routes/index");
 const cors = require("cors");
 
 
-
 // workers
 const emailWorker = require("./workers/email/email.worker");
 const activityWorker = require("./workers/activity/worker");
