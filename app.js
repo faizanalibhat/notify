@@ -39,6 +39,6 @@ notificationWorker();
 
 app.use(errorHandler);
 
-app.listen(process.env.PORT || 80, () => {
-    console.log("[+] SERVER IS RUNNING ON PORT ", process.env.PORT || 80);
+app.listen(process.env.NOTIFY_PORT || 80, () => {
+    console.log("[+] SERVER IS RUNNING ON PORT ", process.env.NOTIFY_PORT || 80);
 });
