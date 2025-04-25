@@ -3,7 +3,7 @@ const Activity = require("../models/activity.model");
 
 // endpoint to activity map
 const endpointWithMethodActionMap = {
-    '/vs/api/group' : {
+    '/vs/api/groups' : {
         'GET': 'Listed Groups in VS',
         'POST': 'Created a Group in VS',
         'PATCH': 'Updated a group in VS',
