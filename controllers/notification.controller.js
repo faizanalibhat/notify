@@ -2,11 +2,15 @@ const notificationService = require("../services/notification.service");
 
 
 const getAllNotifications = async (req, res) => {
-    const { page=1, limit=10 } = req.query;
+    const { orgId } = req.authenticatedService;
 
-    const filter = {};
+    const { page=1, limit=10, origin } = req.query;
 
-    const notifications = await notificationService.getAllNotifications('', filter, page, limit);
+    const filter = {
+        origin
+    };
+
+    const notifications = await notificationService.getAllNotifications(orgId, filter, page, limit);
 
     return res.json(notifications);
 }

@@ -18,9 +18,9 @@ const createNotification = async (orgId, notification) => {
 
 const getAllNotifications = async (orgId, filter={}, page=1, limit=10) => {
 
-    const notifications = await Notification.find(filter).skip((page-1)*limit).limit(limit).lean();
+    const notifications = await Notification.find({ orgId, ...filter }).sort({ createdAt: -1 }).skip((page-1)*limit).limit(limit).lean();
 
-    const total = await Notification.countDocuments({});
+    const total = await Notification.countDocuments({ orgId });
 
     return { notifications, total };
 }
