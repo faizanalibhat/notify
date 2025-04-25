@@ -40,7 +40,7 @@ async function activityLogsHandler(payload, msg, channel) {
     }
     catch(err) {
         console.log(err);
-        channel.ack(err);
+        channel.ack(msg);
     }
 }
 
