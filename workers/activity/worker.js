@@ -10,7 +10,7 @@ async function activityLogsHandler(payload, msg, channel) {
 
         const { orgId, firstName, lastName, email } = authContext;
 
-        const endpoint = path;
+        const endpoint = originalUrl;
 
         console.log(endpoint, method);
 
