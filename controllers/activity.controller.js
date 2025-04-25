@@ -3,7 +3,7 @@ const { catchError } = require("../utils/catchError");
 
 
 const getAllActivity = catchError(async (req, res) => {
-    const orgId = '';
+    const { orgId } = req.authenticatedService;
 
     const { page, limit } = req.query;
 
