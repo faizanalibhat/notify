@@ -26,7 +26,7 @@ const endpointWithMethodActionMap = {
 
 const parseActivity = (endpoint, method) => {
 
-    const activity = endpointWithMethodActionMap[endpoint][method];
+    const activity = endpointWithMethodActionMap?.[endpoint]?.[method];
 
     return activity;
 
