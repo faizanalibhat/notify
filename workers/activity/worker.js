@@ -12,8 +12,6 @@ async function activityLogsHandler(payload, msg, channel) {
 
         const endpoint = originalUrl;
 
-        console.log(endpoint, method);
-
         const action = activityService.parseActivity(endpoint, method);
 
         if (!action) {
@@ -33,7 +31,7 @@ async function activityLogsHandler(payload, msg, channel) {
         };
 
         // save the activity
-        const created = await activityService.createActivity(orgId, activity)
+        const created = await activityService.createActivity(orgId, activity);
 
         if (created.status == "failed") {
             console.log("[+] FAILED TO CREATE ACTIVITY");
