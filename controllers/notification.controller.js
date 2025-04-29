@@ -17,4 +17,15 @@ const getAllNotifications = async (req, res) => {
 
 
 
-module.exports = { getAllNotifications };
+const markNotificationSeen = async (req, res) => {
+    const { orgId } = req.authenticatedService;
+    const { id } = req.params;
+
+    const notification = await notificationService.markNotificationSeen(orgId, id);
+
+    return res.json(notification);
+}
+
+
+
+module.exports = { getAllNotifications, markNotificationSeen };

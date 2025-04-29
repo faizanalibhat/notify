@@ -6,7 +6,9 @@ const controller = require("../controllers/notification.controller");
 
 router
 
-.get("/bulk", controller.getAllNotifications);
+.get("/bulk", controller.getAllNotifications)
+
+.post("/:id/seen", controller.markNotificationSeen);
 
 
 module.exports = router;
