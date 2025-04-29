@@ -65,9 +65,7 @@ const resolveMembersUsingRoles = async (orgId, roles = []) => {
     try {
         const members = await resolveMembers(orgId);
 
-        console.log(members, "members");
-
-        if (roles.includes("*") || roles.includes("all")) return members;
+        if (roles.includes("*") || roles.includes("all")) return members?.map(member => ({ email: member.email }));
 
         const recipients = members
         ?.filter(member => roles.includes(member.role))
@@ -86,7 +84,7 @@ const resolveMembersUsingTeams = async (orgId, teams = []) => {
     try {
         const members = await resolveMembers(orgId);
 
-        if (teams.includes("*") || teams.includes("all")) return members;
+        if (teams.includes("*") || teams.includes("all")) return members?.map(member => ({ email: member.email }));
 
         const recipients = members
         ?.filter(member => teams.includes(member?.teamId))

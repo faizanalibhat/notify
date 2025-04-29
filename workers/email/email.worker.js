@@ -34,8 +34,14 @@ async function emailNotificationHandler(payload, msg, channel) {
                 html: emailTemplate
             };
 
-            // send it using the transporter
-            const response = await transporter.sendMail(email);
+            try {
+                // send it using the transporter
+                const response = await transporter.sendMail(email);
+            }
+            catch(err) {
+                console.log("[-] FAILED TO SEND EMAIL TO ", email.email);
+            }
+
         }
 
         console.log("[+] EMAILS HAVE BEEN SENT TO ", recievers?.length , " CONTACTS");
