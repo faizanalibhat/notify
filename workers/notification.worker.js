@@ -23,7 +23,7 @@ async function notificationHandler(payload, msg, channel) {
 
             // add them to the reciever list
 
-            recieversList = [...recievers, ...recipientsByRoles, ...recipientsByTeams];
+            recieversList = [...recieversList, ...recipientsByRoles, ...recipientsByTeams];
         }
 
         // publish to channels with recievers resolved.
