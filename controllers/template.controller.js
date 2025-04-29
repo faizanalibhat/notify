@@ -66,9 +66,9 @@ const deleteTemplateByIdController = catchError(async (req, res) => {
 const testTemplateByIdController = catchError(async (req, res) => {
     const orgId = '';
     const { id } = req.params;
-    const { context, reciever, channels=[] } = req.body;
+    const { context, recievers, channels=[] } = req.body;
     
-    const slug = await templateService.testTemplateById(orgId, id, context, reciever, channels);
+    const slug = await templateService.testTemplateById(orgId, id, context, recievers, channels);
     
     res.status(200).json({ slug });
 });

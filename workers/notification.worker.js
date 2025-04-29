@@ -9,7 +9,7 @@ async function notificationHandler(payload, msg, channel) {
     try {
         const { orgId, notification, store, channels = [], authContext, recievers, orgCoverage } = payload;
 
-        let recieversList = receivers ? Array.isArray(recievers) ? recievers : [recievers] : [];
+        let recieversList = recievers ? Array.isArray(recievers) ? recievers : [recievers] : [];
 
         // based on the org coverage, populate the reciever with their emails.
         if (orgCoverage) {

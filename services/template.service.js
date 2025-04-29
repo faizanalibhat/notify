@@ -72,7 +72,7 @@ const deleteTemplateById = async (orgId, id) => {
 
 
 
-const testTemplateById = async (orgId, id, context, reciever, channels=[]) => {
+const testTemplateById = async (orgId, id, context, recievers, channels=[]) => {
     const template = await Template.findOne({ _id: ObjectId.createFromHexString(id) });
 
     if (!template) {
@@ -85,7 +85,7 @@ const testTemplateById = async (orgId, id, context, reciever, channels=[]) => {
         orgId,
         slug,
         context,
-        reciever,
+        recievers,
         notification: {},
         authContext: {},
         sender: {},
