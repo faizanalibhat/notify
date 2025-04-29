@@ -6,9 +6,9 @@ const getAllNotifications = async (req, res) => {
 
     const { page=1, limit=10, origin } = req.query;
 
-    const filter = {
-        origin
-    };
+    const filter = {};
+
+    if (origin && origin != "all") filter.origin = origin;
 
     const notifications = await notificationService.getAllNotifications(orgId, filter, page, limit);
 
