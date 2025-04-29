@@ -51,15 +51,11 @@ const resolveMembers = async (orgId) => {
     try {
         const users = await resolveAllMembers(orgId); 
 
-        if (!Array.isArray(users?.data?.m)) {
-            return { code: 400, status: "failed", message: "failed to resolve members" };
-        }
-
         return users;
     }
     catch(err) {
         console.log(err.message);
-        return { code: 400, status: "failed", message: "failed to resolve members" };
+        return [];
     }
 }
 
@@ -70,8 +66,6 @@ const resolveMembersUsingRoles = async (orgId, roles = []) => {
         const members = await resolveMembers(orgId);
 
         console.log(members, "members");
-
-        if (!members || members?.status == "failed") return [];
 
         if (roles.includes("*") || roles.includes("all")) return members;
 
@@ -91,8 +85,6 @@ const resolveMembersUsingRoles = async (orgId, roles = []) => {
 const resolveMembersUsingTeams = async (orgId, teams = []) => {
     try {
         const members = await resolveMembers(orgId);
-
-        if (!members || members?.status == "failed") return [];
 
         if (teams.includes("*") || teams.includes("all")) return members;
 
