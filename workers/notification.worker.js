@@ -21,6 +21,9 @@ async function notificationHandler(payload, msg, channel) {
             let recipientsByRoles = orgMembersResolver.resolveMembersUsingRoles(orgId, roles);
             let recipientsByTeams = orgMembersResolver.resolveMembersUsingTeams(orgId, teams);
 
+            console.log(recipientsByRoles);
+            console.log(recipientsByTeams);
+
             // add them to the reciever list
 
             recieversList = [...recieversList, ...recipientsByRoles, ...recipientsByTeams];
