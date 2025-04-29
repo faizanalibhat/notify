@@ -25,28 +25,44 @@ const resolveMembers = async (orgId) => {
 
 
 const resolveMembersUsingRoles = async (orgId, roles = []) => {
-    const members = await resolveMembers(orgId);
+    try {
+        const members = await resolveMembers(orgId);
 
-    if (roles.includes("*") || roles.includes("all")) return members;
+        if (members?.status == "failed") return [];
 
-    const recipients = members
-    ?.filter(member => roles.includes(member.role))
-    ?.map(member => ({ email: member?.email }));
+        if (roles.includes("*") || roles.includes("all")) return members;
 
-    return recipients || [];
+        const recipients = members
+        ?.filter(member => roles.includes(member.role))
+        ?.map(member => ({ email: member?.email }));
+
+        return recipients || [];
+    }
+    catch(err) {
+        console.log(err.message);
+        return [];
+    }
 }
 
 
 const resolveMembersUsingTeams = async (orgId, teams = []) => {
-    const members = await resolveMembers(orgId);
+    try {
+        const members = await resolveMembers(orgId);
 
-    if (teams.includes("*") || teams.includes("all")) return members;
+        if (members?.status == "failed") return [];
 
-    const recipients = members
-    ?.filter(member => teams.includes(member?.teamId))
-    ?.map(member => ({ email: member?.email }));
+        if (teams.includes("*") || teams.includes("all")) return members;
 
-    return recipients || [];
+        const recipients = members
+        ?.filter(member => teams.includes(member?.teamId))
+        ?.map(member => ({ email: member?.email }));
+
+        return recipients || [];
+    }
+    catch(err) {
+        console.log(err.message);
+        return [];
+    }
 }
 
 
