@@ -69,6 +69,8 @@ const resolveMembersUsingRoles = async (orgId, roles = []) => {
     try {
         const members = await resolveMembers(orgId);
 
+        console.log(members, "members");
+
         if (!members || members?.status == "failed") return [];
 
         if (roles.includes("*") || roles.includes("all")) return members;
