@@ -9,7 +9,7 @@ async function notificationHandler(payload, msg, channel) {
     try {
         const { orgId, notification, store, channels = [], authContext, recievers, orgCoverage } = payload;
 
-        let recieversList = Array.isArray(recievers) ? recievers : [recievers];
+        let recieversList = receivers ? Array.isArray(recievers) ? recievers : [recievers] : [];
 
         // based on the org coverage, populate the reciever with their emails.
         if (orgCoverage) {
@@ -20,11 +20,6 @@ async function notificationHandler(payload, msg, channel) {
 
             let recipientsByRoles = await orgMembersResolver.resolveMembersUsingRoles(orgId, roles);
             let recipientsByTeams = await orgMembersResolver.resolveMembersUsingTeams(orgId, teams);
-
-            console.log(recipientsByRoles);
-            console.log(recipientsByTeams);
-
-            // add them to the reciever list
 
             recieversList = [...recieversList, ...recipientsByRoles, ...recipientsByTeams];
         }
