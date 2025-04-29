@@ -18,8 +18,8 @@ async function notificationHandler(payload, msg, channel) {
             let roles = orgCoverage.roles;
             let teams = orgCoverage.teams;
 
-            let recipientsByRoles = orgMembersResolver.resolveMembersUsingRoles(orgId, roles);
-            let recipientsByTeams = orgMembersResolver.resolveMembersUsingTeams(orgId, teams);
+            let recipientsByRoles = await orgMembersResolver.resolveMembersUsingRoles(orgId, roles);
+            let recipientsByTeams = await orgMembersResolver.resolveMembersUsingTeams(orgId, teams);
 
             console.log(recipientsByRoles);
             console.log(recipientsByTeams);
