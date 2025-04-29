@@ -51,8 +51,6 @@ const resolveMembers = async (orgId) => {
     try {
         const users = await resolveAllMembers(orgId); 
 
-        console.log("users: ", users);
-
         if (!Array.isArray(users?.data?.m)) {
             return { code: 400, status: "failed", message: "failed to resolve members" };
         }

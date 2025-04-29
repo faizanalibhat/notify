@@ -7,9 +7,9 @@ const orgMembersResolver = require("../services/org.resolver");
 
 async function notificationHandler(payload, msg, channel) {
     try {
-        const { orgId, notification, store, channels = [], authContext, reciever, orgCoverage } = payload;
+        const { orgId, notification, store, channels = [], authContext, recievers, orgCoverage } = payload;
 
-        let recievers = Array.isArray(reciever) ? reciever : [reciever];
+        let recieversList = Array.isArray(recievers) ? recievers : [recievers];
 
         // based on the org coverage, populate the reciever with their emails.
         if (orgCoverage) {
@@ -23,14 +23,12 @@ async function notificationHandler(payload, msg, channel) {
 
             // add them to the reciever list
 
-            recievers = [...recievers, ...recipientsByRoles, ...recipientsByTeams];
+            recieversList = [...recievers, ...recipientsByRoles, ...recipientsByTeams];
         }
-
-        console.log("recievers resolved: ", recievers);
 
         // publish to channels with recievers resolved.
         for (let channel of channels) {
-            await mqbroker.publish("notification", `notification.${channel}`, { ...payload, reciever: recievers });
+            await mqbroker.publish("notification", `notification.${channel}`, { ...payload, recievers: recieversList });
         }
 
         if (store && Object.keys(notification || {})?.length) {
@@ -49,7 +47,7 @@ async function notificationHandler(payload, msg, channel) {
                 orgId,
                 ...notification,
                 ...(user ? { createdBy: user } : {}),
-                sentTo: recievers
+                sentTo: recieversList
             };
 
             const noti = await notificationService.createNotification(orgId, obj);

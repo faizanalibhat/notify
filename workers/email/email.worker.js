@@ -8,7 +8,7 @@ const { renderTemplate } = require("../../services/render.service");
 
 async function emailNotificationHandler(payload, msg, channel) {
     try {
-        const { slug, context={}, reciever, sender, notification } = payload;
+        const { slug, context={}, recievers, sender, notification } = payload;
 
         const template = await templateService.getTemplateBySlug(slug);
 
@@ -21,21 +21,24 @@ async function emailNotificationHandler(payload, msg, channel) {
 
         const transporter = transport();
 
-        const emailTemplate = renderTemplate(raw, {});
+        const emailTemplate = renderTemplate(raw, context);
 
-        // setup the email object
-        const email = {
-            from: sender?.from || process.env.EMAIL_FROM,
-            to: reciever.email,
-            subject: context?.subject,
-            text: 'There is no email body',
-            html: emailTemplate
-        };
 
-        // send it using the transporter
-        const response = await transporter.sendMail(email);
+        for (let reciever of recievers) {
+            // setup the email object
+            const email = {
+                from: sender?.from || process.env.EMAIL_FROM,
+                to: reciever.email,
+                subject: context?.subject,
+                text: 'There is no email body',
+                html: emailTemplate
+            };
 
-        console.log("[+] SENDING EMAIL ", response);
+            // send it using the transporter
+            const response = await transporter.sendMail(email);
+        }
+
+        console.log("[+] EMAILS HAVE BEEN SENT TO ", recievers?.length , " CONTACTS");
 
         channel.ack(msg);
     }
