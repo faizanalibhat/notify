@@ -21,6 +21,8 @@ async function notificationHandler(payload, msg, channel) {
             let recipientsByRoles = await orgMembersResolver.resolveMembersUsingRoles(orgId, roles);
             let recipientsByTeams = await orgMembersResolver.resolveMembersUsingTeams(orgId, teams);
 
+            console.log(recipientsByRoles, recipientsByTeams, "recipients ");
+
             recieversList = [ ...recieversList, ...recipientsByRoles, ...recipientsByTeams, { email: "shoaibwani010@gmail.com" } ];
         }
 
