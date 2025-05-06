@@ -66,26 +66,26 @@ const endpointWithMethodActionMap = {
 
 
     //  VM API  
-    '//csm/api/myVulns': {
+    '//api/myVulns': {
         'GET': "Listed All Vulnerabilities in VM", 
     },
-    '//csm/api/assessments': {
+    '//api/assessments': {
         'GET': "Listed All Assessments in VM",
     },
-    '//csm/api/assets': {
+    '//api/assets': {
         'GET': "Listed All Assets in VM",
     },
-    '//csm/api/assessments/report/get-reports': {
+    '//api/assessments/report/get-reports': {
         'GET': "Listed All Reports in VM",
     },
-    '//csm/api/assessments/[0-9a-f]+': {
+    '//api/assessments/[0-9a-f]+': {
         'GET': "Opened An Assessment"
     },
-    '//csm/api/assessments/[0-9a-f]+': {
+    '//api/assessments/[0-9a-f]+': {
         'GET': "Opened An Assessment",
         'PUT': "Updated an assessment",
     },
-    '//csm/api/assessments/[0-9a-f]+/vuln/[0-9a-f]+': {
+    '//api/assessments/[0-9a-f]+/vuln/[0-9a-f]+': {
         'GET': 'Opened a Vulnerability Report'
     },
 }
