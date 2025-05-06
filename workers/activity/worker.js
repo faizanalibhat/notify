@@ -10,7 +10,7 @@ async function activityLogsHandler(payload, msg, channel) {
 
         const { orgId, firstName, lastName, email } = authContext;
 
-        const endpoint = originalUrl;
+        const endpoint = originalUrl?.split("?")[0];
 
         console.log(method, endpoint);
 
