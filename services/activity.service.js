@@ -61,7 +61,33 @@ const endpointWithMethodActionMap = {
     },
     '/op/assets/[a-z]+?/asset/[0-9a-f]+?/exposure': {
         'POST': "Created an Exposure",
-    }
+    },
+
+
+
+    //  VM API  
+    '/csm/api/myVulns': {
+        'GET': "Listed All Vulnerabilities in VM", 
+    },
+    '/csm/api/assessments': {
+        'GET': "Listed All Assessments in VM",
+    },
+    '/csm/api/assets': {
+        'GET': "Listed All Assets in VM",
+    },
+    '/csm/api/assessments/report/get-reports': {
+        'GET': "Listed All Reports in VM",
+    },
+    '/csm/api/assessments/[0-9a-f]+': {
+        'GET': "Opened An Assessment"
+    },
+    '/csm/api/assessments/[0-9a-f]+': {
+        'GET': "Opened An Assessment",
+        'PUT': "Updated an assessment",
+    },
+    '/csm/api/assessments/[0-9a-f]+/vuln/[0-9a-f]+': {
+        'GET': 'Opened a Vulnerability Report'
+    },
 }
 
 
@@ -72,6 +98,7 @@ const parseActivity = (endpoint, method) => {
 
     // find the key that matches the endpoint and use it to find the activity.
     let matchingKey = keys.filter(key => {
+        console.log("[+] MATCHING " + key + " WITH " + endpoint);
         let match = endpoint.match(`^${key}$`);
 
         if (match && match?.length) {

@@ -15,6 +15,7 @@ async function emailNotificationHandler(payload, msg, channel) {
         if (template.status == "failed") {
             console.log("[+] SLUG DOES NOT MATCH ANY TEMPLATE");
             channel.ack(msg);
+            return;
         }
 
         const { raw } = template;
@@ -40,6 +41,7 @@ async function emailNotificationHandler(payload, msg, channel) {
             }
             catch(err) {
                 console.log("[-] FAILED TO SEND EMAIL TO ", email.email);
+                return channel.ack(msg);
             }
 
         }
@@ -50,6 +52,9 @@ async function emailNotificationHandler(payload, msg, channel) {
     }
     catch(err) {
         console.log("[+] ERROR WHILE HANDLING EVENT", err.message);
+        return channel.ack(msg);
+    }
+    finally {
         return channel.ack(msg);
     }
 }
