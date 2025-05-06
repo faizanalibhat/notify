@@ -21,6 +21,30 @@ const endpointWithMethodActionMap = {
         'PATCH': 'Updated a Scanner in VS',
         'DELETE': 'Removed a Scanner from VS'
     },
+
+
+    // OP API
+    '/op/assets/subdomains': {
+        'GET': 'Listed Subdomains in ASM',
+    },
+    '/op/assets/ips': {
+        'GET': 'Listed IP Addresses in ASM',
+    },
+    '/op/dns': {
+        'GET': 'Listed DNS Records in ASM'
+    },
+    '/op/ports': {
+        'GET': "Listed Ports in ASM"
+    },
+    '/op/technologies': {
+        'GET': "Listed Technologies in ASM"
+    },
+    '/op/assets/exposure': {
+        'GET': "Listed Exposures in ASM",
+    },
+    '/op/report': {
+        'GET': "Listed Reports in ASM"
+    },
 }
 
 
