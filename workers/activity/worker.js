@@ -34,7 +34,7 @@ async function activityLogsHandler(payload, msg, channel) {
             },
             orgId: orgId,
             action: action,
-            raw: { query, body, params, ip, headers: saveHeaders, originalUrl, method },
+            raw: { query, body, params, ip, headers: saveHeaders, originalUrl: endpoint, method },
             origin: origin
         };
 
