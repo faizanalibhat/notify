@@ -17,7 +17,6 @@ const notificationWorker = require("./workers/notification.worker");
 const app = express();
 
 app.use(cors());
-app.use(morgan('tiny'));
 app.use(bodyParser.json());
 
 app.use("/notify/api", authenticateService(), router);
