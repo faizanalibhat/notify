@@ -157,9 +157,9 @@ const createActivity = async (orgId, activity) => {
 }
 
 
-const getAllActivity = async (orgId, filter={}, page=1, limit=10) => {
+const getAllActivity = async (orgId, filter={}, page=1, limit=10, sortBy='createdAt', sortAs="desc") => {
     try {
-        const activity = await Activity.find({ orgId, ...filter }).sort({ createdAt: -1 }).skip((page-1)*limit).limit(limit);
+        const activity = await Activity.find({ orgId, ...filter }).sort({ [sortBy]: sortAs == 'desc' ? -1 : 1 }).skip((page-1)*limit).limit(limit);
         const total = await Activity.countDocuments({ orgId });
 
         return { activity, total }; 
