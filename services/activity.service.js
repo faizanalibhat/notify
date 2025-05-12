@@ -127,7 +127,6 @@ const parseActivity = (endpoint, method) => {
 
     // find the key that matches the endpoint and use it to find the activity.
     let matchingKey = keys.filter(key => {
-        console.log("[+] MATCHING " + key + " WITH " + endpoint);
         let match = endpoint.match(`^${key}$`);
 
         if (match && match?.length) {
