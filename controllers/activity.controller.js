@@ -31,10 +31,12 @@ const getAllActivity = catchError(async (req, res) => {
         }
     }
 
+    console.log("[+] FILTERING ", filter);
+
     const activity = await activityService.getAllActivity(orgId, filter, page, limit);
 
     return res.json(activity);
 });
 
 
-module.exports = { getAllActivity };
+module.exports = { getAllActivity };    
