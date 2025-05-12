@@ -8,11 +8,11 @@ const getAllActivity = catchError(async (req, res) => {
     const { page, limit } = req.query;
 
     const supportedFilters = {
-        "product": "origin",
-        "email": "owner.email",
-        "endpoint": "raw.originalUrl",
-        "ip": "raw.ip",
-        "user": "owner.name"
+        "product": { attribute: "origin", isRegex: false },
+        "email": { attribute: "owner.email", isRegex: true },
+        "endpoint": { attribute: "raw.originalUrl", isRegex: true },
+        "ip": { attribute: "raw.ip", isRegex: true },
+        "user": { attribute: "owner.name", isRegex: true },
     };
 
     const filter = {};
@@ -21,7 +21,14 @@ const getAllActivity = catchError(async (req, res) => {
 
         if (!req.query[key]) continue;
 
-        filter[value] = req.query[key];
+        const { attribute, isRegex } = value;
+
+        if (isRegex) {
+            filter[attribute] = { $regex: req.query[key], $options: 'i' };
+        }
+        else {
+            filter[attribute] = req.query[key];
+        }
     }
 
     const activity = await activityService.getAllActivity(orgId, filter, page, limit);
