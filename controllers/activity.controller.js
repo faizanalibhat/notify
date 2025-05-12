@@ -7,7 +7,22 @@ const getAllActivity = catchError(async (req, res) => {
 
     const { page, limit } = req.query;
 
+    const supportedFilters = {
+        "product": "origin",
+        "email": "owner.email",
+        "endpoint": "raw.originalUrl",
+        "ip": "raw.ip",
+        "user": "owner.name"
+    };
+
     const filter = {};
+
+    for (let [key, value] of Object.entries(supportedFilters)) {
+
+        if (!req.query[key]) continue;
+
+        filter[value] = req.query[key];
+    }
 
     const activity = await activityService.getAllActivity(orgId, filter, page, limit);
 
