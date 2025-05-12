@@ -9,10 +9,10 @@ const getAllActivity = catchError(async (req, res) => {
 
     const supportedFilters = {
         "product": { attribute: "origin", isRegex: false },
-        "email": { attribute: "owner.email", isRegex: true },
+        "email": { attribute: "user.email", isRegex: true },
         "endpoint": { attribute: "raw.originalUrl", isRegex: true },
         "ip": { attribute: "raw.ip", isRegex: true },
-        "user": { attribute: "owner.name", isRegex: true },
+        "user": { attribute: "user.name", isRegex: true },
     };
 
     const filter = {};
