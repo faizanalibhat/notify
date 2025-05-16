@@ -4,13 +4,15 @@ const notificationService = require("../services/notification.service");
 const getAllNotifications = async (req, res) => {
     const { orgId, email } = req.authenticatedService;
 
-    const { page=1, limit=10, origin } = req.query;
+    const { page=1, limit=10, origin, seen } = req.query;
 
     const filter = {};
 
     if (origin && origin != "all") filter.origin = origin;
 
     filter['createdBy.email'] = { $ne: email };
+
+    if (seen) filter.seen = seen == 'true';
 
     const notifications = await notificationService.getAllNotifications(orgId, filter, page, limit);
 
@@ -30,4 +32,14 @@ const markNotificationSeen = async (req, res) => {
 
 
 
-module.exports = { getAllNotifications, markNotificationSeen };
+const markAllAsSeen = async (req, res) => {
+    const { orgId } = req.authenticatedService;
+
+    const markedAsSeen = await notificationService.markAllAsSeen(orgId);
+
+    return res.json({ success: true, message: "success" });
+}
+
+
+
+module.exports = { getAllNotifications, markNotificationSeen, markAllAsSeen };

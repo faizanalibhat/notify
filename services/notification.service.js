@@ -22,7 +22,9 @@ const getAllNotifications = async (orgId, filter={}, page=1, limit=10) => {
 
     const total = await Notification.countDocuments({ orgId });
 
-    return { notifications, total };
+    const unseen = await Notification.countDocuments({ orgId, seen: false, 'createdBy.email': filter['createdBy.email'] });
+
+    return { notifications, total, unseen };
 }
 
 
@@ -42,8 +44,23 @@ const markNotificationSeen = async (orgId, notificationId) => {
 }
 
 
+
+const markAllAsSeen = async (orgId) => {
+    try {
+        const updated = await Notification.updateMany({ orgId }, { $set: { seen: true } }, { new: true });
+
+        return updated;
+    }
+    catch(error) {
+        console.log("[+] FAILED TO MARK AS SEEN");
+        return { code: 500, status: "failed", message: "all marked as seen" };
+    }
+}
+
+
 module.exports = {
     createNotification,
     getAllNotifications,
     markNotificationSeen,
+    markAllAsSeen
 }

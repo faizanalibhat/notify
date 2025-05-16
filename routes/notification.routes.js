@@ -8,7 +8,9 @@ router
 
 .get("/bulk", controller.getAllNotifications)
 
-.post("/:id/seen", controller.markNotificationSeen);
+.post("/:id/seen", controller.markNotificationSeen)
+
+.post("/seen", controller.markAllAsSeen);
 
 
 module.exports = router;
