@@ -67,7 +67,7 @@ async function main() {
 
 
     // consume events
-    await mqbroker.consume("notification", "notification.email", emailNotificationHandler, "emailNotificationsQueue");
+    await mqbroker.consume("notification", "notification.email", emailNotificationHandler, "emailOnlyNotificationsQueue");
 }
 
 
