@@ -10,20 +10,34 @@ async function emailNotificationHandler(payload, msg, channel) {
     try {
         const { slug, context={}, recievers, sender, notification } = payload;
 
+        // Validate payload
+        if (!slug || !recievers || !Array.isArray(recievers)) {
+            console.log("[!] Invalid payload structure, missing required fields");
+            channel.ack(msg); // Acknowledge invalid messages to prevent reprocessing
+            return;
+        }
+
         const template = await templateService.getTemplateBySlug(slug);
 
-        if (template.status == "failed") {
+        if (template.status === "failed") {
             console.log("[+] SLUG DOES NOT MATCH ANY TEMPLATE");
-            channel.ack(msg);
+            channel.ack(msg); // Acknowledge as this isn't recoverable
             return;
         }
 
         const { raw } = template;
-
         const emailTemplate = renderTemplate(raw, context);
+        let successCount = 0;
+        let failCount = 0;
 
+        // Process emails one by one
         for (let reciever of recievers) {
-            // setup the email object
+            if (!reciever.email) {
+                console.log("[!] Skipping recipient with no email address");
+                continue;
+            }
+
+            // Setup the email object
             const email = {
                 from: sender?.from || process.env.EMAIL_FROM,
                 to: reciever.email,
@@ -33,30 +47,35 @@ async function emailNotificationHandler(payload, msg, channel) {
             };
 
             try {
-                console.log("[+] SENDING EMAIL To ", email);
-                // send it using the transporter
-                const response = await transporter.sendMail(email);
+                console.log("[+] SENDING EMAIL To", reciever.email);
+                // Send it using the transporter
+                await transporter.sendMail(email);
+                successCount++;
             }
             catch(err) {
-                console.log("[-] FAILED TO SEND EMAIL TO ", email.email);
-                return channel.ack(msg);
+                console.log(`[-] FAILED TO SEND EMAIL TO ${reciever.email}: ${err.message}`);
+                failCount++;
+                // Continue to next recipient instead of returning
             }
-
         }
 
-        console.log("[+] EMAILS HAVE BEEN SENT TO ", recievers?.length , " CONTACTS");
-
+        console.log(`[+] EMAILS SENT: ${successCount} SUCCESS, ${failCount} FAILED OUT OF ${recievers.length} CONTACTS`);
+        
+        // Only acknowledge the message once at the end
         channel.ack(msg);
     }
     catch(err) {
-        console.log("[+] ERROR WHILE HANDLING EVENT", err.message);
-        return channel.ack(msg);
-    }
-    finally {
-        return channel.ack(msg);
+        console.log(`[+] ERROR WHILE HANDLING EVENT: ${err.message}`);
+        
+        // For unexpected errors, we need to decide whether to requeue or not
+        // If it's a transient error (like network issues), we might want to retry
+        // If it's a permanent error (like malformed data), we should not retry
+        
+        // For now, acknowledging to prevent reprocessing after restart
+        // Consider using nack with requeue=false for permanent errors
+        channel.ack(msg);
     }
 }
-
 
 
 async function main() {
