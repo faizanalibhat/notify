@@ -10,7 +10,7 @@ const getAllNotifications = async (req, res) => {
 
     if (origin && origin != "all") filter.origin = origin;
 
-    filter['createdBy.email'] = email;
+    filter['createdBy.email'] = { $ne: email };
 
     const notifications = await notificationService.getAllNotifications(orgId, filter, page, limit);
 
