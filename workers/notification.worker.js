@@ -56,7 +56,7 @@ async function notificationHandler(payload, msg, channel) {
         channel.ack(msg);
     }
     catch(err) {
-        console.log("[+] ERROR WHILE HANDLING EVENT", err.message);
+        console.log("[+] ERROR WHILE HANDLING EVENT IN NOTIFICATION QUEUE", err.message);
         return channel.ack(msg);
     }
 }

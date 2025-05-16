@@ -38,13 +38,19 @@ const getTemplateById = async (orgId, id) => {
 
 
 const getTemplateBySlug = async (slug) => {
-    const template = await Template.findOne({ slug });
+    try {
+        const template = await Template.findOne({ slug });
 
-    if (!template) {
+        if (!template) {
+            return { code: 404, status: "failed", message: "template not found" };
+        }
+
+        return template.toJSON();
+    }
+    catch(err) {
+        console.log("Error while getting template");
         return { code: 404, status: "failed", message: "template not found" };
     }
-
-    return template.toJSON();
 }
 
 

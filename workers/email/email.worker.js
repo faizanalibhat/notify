@@ -4,7 +4,7 @@ const { connectDb } = require("../../models/connectDb");
 const transport = require("../../channels/email/index");
 const { renderTemplate } = require("../../services/render.service");
 
-
+const transporter = transport();
 
 async function emailNotificationHandler(payload, msg, channel) {
     try {
@@ -20,10 +20,7 @@ async function emailNotificationHandler(payload, msg, channel) {
 
         const { raw } = template;
 
-        const transporter = transport();
-
         const emailTemplate = renderTemplate(raw, context);
-
 
         for (let reciever of recievers) {
             // setup the email object
@@ -36,6 +33,7 @@ async function emailNotificationHandler(payload, msg, channel) {
             };
 
             try {
+                console.log("[+] SENDING EMAIL To ", email);
                 // send it using the transporter
                 const response = await transporter.sendMail(email);
             }
