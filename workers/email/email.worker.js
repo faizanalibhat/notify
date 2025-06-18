@@ -1,14 +1,19 @@
 const { mqbroker } = require("../../services/rabbitmq.service");
+const fs = require("fs/promises");
+const path = require("path");
 const templateService = require("../../services/template.service");
 const { connectDb } = require("../../models/connectDb");
 const transport = require("../../channels/email/index");
 const { renderTemplate } = require("../../services/render.service");
+const { getValidatorForTemplate } = require("../../services/validator.service");
+
 
 const transporter = transport();
 
+
 async function emailNotificationHandler(payload, msg, channel) {
     try {
-        const { slug, context={}, recievers, sender, notification } = payload;
+        const { slug, context, recievers, sender, notification } = payload;
 
         // Validate payload
         if (!slug || !recievers || !Array.isArray(recievers)) {
@@ -23,6 +28,21 @@ async function emailNotificationHandler(payload, msg, channel) {
             console.log("[+] SLUG DOES NOT MATCH ANY TEMPLATE");
             channel.ack(msg); // Acknowledge as this isn't recoverable
             return;
+        }
+        
+        if (!context) {
+            console.log("[+] CONTEXT MISSING, SKIPPING EMAIL");
+            channel.ack(msg);
+            return;
+        }
+
+        const isValid = getValidatorForTemplate(slug);
+
+        if (!isValid(context)) {
+            await fs.writeFile(path.resolve("logs"), `[+] RECIEVED INCOMPLETE CONTEXT FOR EMAIL - RECIEVER : ${reciever.email} - ORIGIN : ${notification.origin} - RESOURCE : ${notification?.resourceMeta?.resource}`);
+
+            console.log("[+] GIVEN CONTEXT HAS MISSING INFO");
+            return channel.ack(msg);
         }
 
         const { raw } = template;
@@ -47,7 +67,7 @@ async function emailNotificationHandler(payload, msg, channel) {
             };
 
             try {
-                console.log("[+] SENDING EMAIL To", reciever.email);
+                console.log("[+] SENDING EMAIL To: ", reciever.email);
                 // Send it using the transporter
                 await transporter.sendMail(email);
                 successCount++;
