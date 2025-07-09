@@ -27,7 +27,7 @@ const getAllActivity = catchError(async (req, res) => {
             filter[attribute] = { $regex: req.query[key], $options: 'i' };
         }
         else {
-            filter[attribute] = req.query[key];
+            filter[attribute] = { $in: req.query[key].split(",") };
         }
     }
 
