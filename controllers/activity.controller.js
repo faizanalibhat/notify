@@ -1,4 +1,7 @@
-// Handler for /internal/activity/:orgId with filters and stats
+
+const activityService = require('../services/activity.service');
+const { catchError } = require("../utils/catchError");
+
 const getOrgActivityWithStats = catchError(async (req, res) => {
     const { orgId } = req.params;
 
@@ -81,10 +84,6 @@ const getOrgActivityWithStats = catchError(async (req, res) => {
         }
     });
 });
-const activityService = require('../services/activity.service');
-const { catchError } = require("../utils/catchError");
-
-
 const getAllActivity = catchError(async (req, res) => {
     const { orgId } = req.authenticatedService;
 
