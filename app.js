@@ -18,6 +18,9 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
+const activityController = require("./controllers/activity.controller");
+
+router.get("/notify/internal/activity/:orgId", activityController.getOrgActivityWithStats);
 
 app.use("/notify/api", authenticateService(), router);
 
