@@ -162,7 +162,12 @@ const getAllActivity = async (orgId, filter={}, page=1, limit=10, sortBy='create
         const activity = await Activity.find({ orgId, ...filter }).sort({ [sortBy]: sortAs == 'desc' ? -1 : 1 }).skip((page-1)*limit).limit(limit);
         const total = await Activity.countDocuments({ orgId });
 
-        return { activity, total }; 
+
+        const supportedFilters = {};
+
+        supportedFilters.users = await Activity.distinct('user.email', { orgId: orgId });
+
+        return { activity, total, filters: supportedFilters }; 
     }
     catch(err) {
         console.log(err);
