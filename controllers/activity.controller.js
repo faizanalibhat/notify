@@ -5,7 +5,7 @@ const { catchError } = require("../utils/catchError");
 const getAllActivity = catchError(async (req, res) => {
     const { orgId } = req.authenticatedService;
 
-    const { page, limit, sortBy = 'createdAt', sortAs = 'desc', search = '' } = req.query;
+    const { page, limit, sortBy = 'createdAt', sortAs = 'desc', search = '', email } = req.query;
 
     const supportedFilters = {
         "product": { attribute: "origin", isRegex: false },
@@ -40,6 +40,10 @@ const getAllActivity = catchError(async (req, res) => {
             { 'raw.ip': { $regex: search, $options: 'i' } },
             { 'raw.originalUrl': { $regex: search, $options: 'i' } },
         ]
+    }
+
+    if (email) {
+        filter['user.email'] = email;
     }
 
     const activity = await activityService.getAllActivity(orgId, filter, page, limit, sortBy, sortAs);
