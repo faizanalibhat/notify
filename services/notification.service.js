@@ -45,9 +45,9 @@ const markNotificationSeen = async (orgId, notificationId) => {
 
 
 
-const markAllAsSeen = async (orgId) => {
+const markAllAsSeen = async (orgId, origin) => {
     try {
-        const updated = await Notification.updateMany({ orgId }, { $set: { seen: true } }, { new: true });
+        const updated = await Notification.updateMany({ orgId, ...(origin ? { origin } : {}) }, { $set: { seen: true } }, { new: true });
 
         return updated;
     }
