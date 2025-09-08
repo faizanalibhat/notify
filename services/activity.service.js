@@ -87,7 +87,14 @@ const endpointWithMethodActionMap = {
     },
     '//api/assessments/[0-9a-f]+/vuln/[0-9a-f]+': {
         'GET': 'Opened a Vulnerability Report',
-        'PUT': "Updated a Vulnerability"
+        'PUT': "Updated a Vulnerability",
+        "DELETE": "Deleted a Vulnerability Report"
+    },
+    '//api/files/new': {
+        'POST': "Uploaded an attachment on a vulnerability report."
+    },
+    '//api/files/[0-9a-f]+': {
+        'DELETE': 'Deleted an attachment on a vulnerability report.',
     },
 
 
