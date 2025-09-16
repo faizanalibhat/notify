@@ -54,8 +54,9 @@ const markAllAsSeen = async (req, res) => {
     const { origin } = req.body;
 
     let finalOrigin = origin;
+
     if (finalOrigin == "all") {
-        origin = null
+        finalOrigin = null;
     }
 
     const markedAsSeen = await notificationService.markAllAsSeen(orgId, origin);
