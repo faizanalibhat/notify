@@ -4,7 +4,10 @@ const notificationService = require("../services/notification.service");
 const getAllNotifications = async (req, res) => {
     const { orgId, email } = req.authenticatedService;
 
-    const { page=1, limit=10, origin, seen, search } = req.query;
+    const { origin, seen, search } = req.query;
+
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
 
     const filter = {};
 
