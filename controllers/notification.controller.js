@@ -59,7 +59,7 @@ const markAllAsSeen = async (req, res) => {
         finalOrigin = null;
     }
 
-    const markedAsSeen = await notificationService.markAllAsSeen(orgId, origin);
+    const markedAsSeen = await notificationService.markAllAsSeen(orgId, finalOrigin);
 
     return res.json({ success: true, message: "success" });
 }
