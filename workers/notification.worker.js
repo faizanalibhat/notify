@@ -21,7 +21,7 @@ async function notificationHandler(payload, msg, channel) {
             let recipientsByRoles = await orgMembersResolver.resolveMembersUsingRoles(orgId, roles);
             let recipientsByTeams = await orgMembersResolver.resolveMembersUsingTeams(orgId, teams);
 
-            recieversList = [ ...recieversList, ...recipientsByRoles, ...recipientsByTeams, { email: "shoaibwani010@gmail.com" } ];
+            recieversList = [ ...recieversList, ...recipientsByRoles, ...recipientsByTeams ];
         }
 
         // publish to channels with recievers resolved.
