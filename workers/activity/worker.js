@@ -3,56 +3,103 @@ const { connectDb } = require("../../models/connectDb");
 const activityService = require("../../services/activity.service");
 
 
+function getClientIp(req) {
+  // Prefer X-Forwarded-For (can contain multiple IPs, take the first)
+  let ip =
+    req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
+    req.headers["x-real-ip"] ||
+    req.ip ||
+    null;
+
+  // Normalize IPv6-mapped IPv4 (::ffff:1.2.3.4 → 1.2.3.4)
+  if (ip && ip.startsWith("::ffff:")) {
+    ip = ip.replace("::ffff:", "");
+  }
+
+  // Normalize localhost (::1 → 127.0.0.1)
+  if (ip === "::1") {
+    ip = "127.0.0.1";
+  }
+
+  return ip;
+}
+
+
+// helper to normalize IPs
+function normalizeIp(ip) {
+  if (!ip) return null;
+  if (ip.startsWith("::ffff:")) return ip.replace("::ffff:", "");
+  if (ip === "::1") return "127.0.0.1";
+  return ip;
+}
 
 async function activityLogsHandler(payload, msg, channel) {
-    try {
-        const { headers, query, body, params, authContext, origin, method, path, originalUrl, ip } = payload;
+  try {
+    const {
+      headers = {},
+      query = {},
+      body = {},
+      params = {},
+      authContext = {},
+      origin,
+      method,
+      path,
+      originalUrl,
+      ip,
+    } = payload;
 
-        const { orgId, firstName, lastName, email } = authContext;
+    const { orgId, firstName = "", lastName = "", email = "" } = authContext;
 
-        const endpoint = originalUrl?.split("?")[0];
-
-        const action = activityService.parseActivity(endpoint, method);
-
-        if (!action) {
-            channel.ack(msg);
-            return;
-        }
-
-
-        const saveHeaders = {
-            'user-agent': headers['user-agent'],
-            'host': headers['host'],
-        }
-
-        const activity = {
-            user: {
-                name: firstName + " " + lastName,
-                email: email
-            },
-            orgId: orgId,
-            action: action,
-            raw: { query, body, params, ip, headers: saveHeaders, originalUrl: endpoint, method },
-            origin: origin
-        };
-
-        // save the activity
-        const created = await activityService.createActivity(orgId, activity);
-
-        if (created.status == "failed") {
-            console.log("[+] FAILED TO CREATE ACTIVITY");
-            channel.ack(msg);
-            return;
-        }
-
-        console.log("[+] ACTIVITY LOG RECIEVED ", created?.origin);
-
-        channel.ack(msg);
+    if (!orgId) {
+      console.warn("[!] Skipping activity log: missing orgId");
+      return channel.ack(msg);
     }
-    catch(err) {
-        console.log(err);
-        channel.ack(msg);
+
+    const endpoint = originalUrl?.split("?")[0] || path;
+    const action = activityService.parseActivity(endpoint, method);
+
+    if (!action) {
+      return channel.ack(msg);
     }
+
+    const saveHeaders = {
+      "user-agent": headers["user-agent"] || null,
+      host: headers["host"] || null,
+    };
+
+    const activity = {
+      user: {
+        name: `${firstName} ${lastName}`.trim(),
+        email,
+      },
+      orgId,
+      action,
+      raw: {
+        query,
+        body,
+        params,
+        ip: getClientIp({ headers, ip }),
+        headers: saveHeaders,
+        originalUrl: endpoint,
+        method,
+      },
+      origin,
+    };
+
+    const created = await activityService.createActivity(orgId, activity);
+
+    if (created?.status === "failed") {
+      console.error("[+] FAILED TO CREATE ACTIVITY");
+      return channel.ack(msg);
+    }
+
+    console.log("[+] ACTIVITY LOG RECEIVED", created?._id || action);
+
+    channel.ack(msg);
+  } catch (err) {
+    console.error("[!] Error in activityLogsHandler:", err);
+    channel.ack(msg); // Consider channel.nack(msg) if you want retries
+  }
 }
 
 
