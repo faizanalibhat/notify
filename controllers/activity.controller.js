@@ -43,7 +43,15 @@ const getAllActivity = catchError(async (req, res) => {
     }
 
     if (email) {
-        filter['user.email'] = email;
+      const emails = email.split(",").map((e) => e.trim());
+
+      if (emails.length > 1) {
+        // multiple emails → use $in
+        filter["user.email"] = { $in: emails };
+      } else {
+        // single email → direct match
+        filter["user.email"] = emails[0];
+      }
     }
 
     const activity = await activityService.getAllActivity(orgId, filter, page, limit, sortBy, sortAs);
