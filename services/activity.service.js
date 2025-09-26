@@ -96,7 +96,20 @@ const endpointWithMethodActionMap = {
     '//api/files/[0-9a-f]+': {
         'DELETE': 'Deleted an attachment on a vulnerability report.',
     },
-
+    '//api/folders': {
+        'GET': "Listed Assessment Groups in VM",
+        'POST': "Created an assessment group in VM",
+        'POST': "Created an assessment group in VM",
+    },
+    '//api/folders/[0-9a-f]+': {
+        'DELETE': 'Deleted an assessment group in VM',
+    },
+    '//api/folders/[0-9a-f]+/assessments': {
+        'POST': 'Added an assessment to group',
+    },
+    '//api/folders/[0-9a-f]+/assessments/[0-9a-f]+': {
+        'DELETE': 'Removed an assessment from the group',
+    },
 
 
     // AIM API
