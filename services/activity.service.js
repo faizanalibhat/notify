@@ -84,6 +84,7 @@ const endpointWithMethodActionMap = {
     '//api/assessments/[0-9a-f]+': {
         'GET': "Opened An Assessment",
         'PUT': "Updated an assessment",
+        'DELETE': "Deleted an assessment",
     },
     '//api/assessments/[0-9a-f]+/vuln/[0-9a-f]+': {
         'GET': 'Opened a Vulnerability Report',
