@@ -34,6 +34,9 @@ function normalizeIp(ip) {
 }
 
 async function activityLogsHandler(payload, msg, channel) {
+
+  console.log("[+] GOT ACTIVITY ", payload.origin, payload.method, payload.path);
+
   try {
     const {
       headers = {},
@@ -57,6 +60,8 @@ async function activityLogsHandler(payload, msg, channel) {
 
     const endpoint = originalUrl?.split("?")[0] || path;
     const action = activityService.parseActivity(endpoint, method);
+
+    console.log("[+] ACTIVITY LOG RECEIVED ", origin, method, path);
 
     if (!action) {
       return channel.ack(msg);
@@ -85,8 +90,6 @@ async function activityLogsHandler(payload, msg, channel) {
       },
       origin,
     };
-    
-    console.log("[+] ACTIVITY LOG RECEIVED ", origin, method, path);
 
     const created = await activityService.createActivity(orgId, activity);
 
