@@ -85,6 +85,8 @@ async function activityLogsHandler(payload, msg, channel) {
       },
       origin,
     };
+    
+    console.log("[+] ACTIVITY LOG RECEIVED ", origin, method, path);
 
     const created = await activityService.createActivity(orgId, activity);
 
@@ -93,7 +95,7 @@ async function activityLogsHandler(payload, msg, channel) {
       return channel.ack(msg);
     }
 
-    console.log("[+] ACTIVITY LOG RECEIVED ", origin, method, path, created?._id);
+    console.log("[+] ACTIVITY LOG CREATED ", created?._id);
 
     channel.ack(msg);
   } catch (err) {
