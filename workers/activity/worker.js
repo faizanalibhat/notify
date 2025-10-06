@@ -93,7 +93,7 @@ async function activityLogsHandler(payload, msg, channel) {
       return channel.ack(msg);
     }
 
-    console.log("[+] ACTIVITY LOG RECEIVED", created?._id || action);
+    console.log("[+] ACTIVITY LOG RECEIVED ", origin, method, path, created?._id);
 
     channel.ack(msg);
   } catch (err) {
