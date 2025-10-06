@@ -100,9 +100,10 @@ const endpointWithMethodActionMap = {
     '//api/folders': {
         'GET': "Listed Assessment Groups in VM",
         'POST': "Created an assessment group in VM",
-        'POST': "Created an assessment group in VM",
     },
     '//api/folders/[0-9a-f]+': {
+        'PUT': "Updated an assessment group in VM",
+        'PATCH': "Updated an assessment group in VM",
         'DELETE': 'Deleted an assessment group in VM',
     },
     '//api/folders/[0-9a-f]+/assessments': {
