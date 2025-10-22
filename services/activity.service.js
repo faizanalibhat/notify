@@ -78,6 +78,9 @@ const endpointWithMethodActionMap = {
     '//api/assessments/report/get-reports': {
         'GET': "Listed All Reports in VM",
     },
+    '//api/assessments/report/delete-report/[0-9a-f]+': {
+        'DELETE': "Deleted a report in VM",
+    },
     '//api/assessments/[0-9a-f]+': {
         'GET': "Opened An Assessment"
     },
