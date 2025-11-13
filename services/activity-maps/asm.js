@@ -1,68 +1,70 @@
+const OP_BASE_PATH = '/op/api/v1';
+
 module.exports = {
     // Settings
-    '/op/api/v1/settings': {
+    [`${OP_BASE_PATH}/settings`]: {
         'GET': 'Viewed ASM settings',
         'POST': 'Updated ASM settings'
     },
 
     // Scans
-    '/op/api/v1/scans': {
+    [`${OP_BASE_PATH}/scans`]: {
         'GET': 'Listed scans in ASM'
     },
-    '/op/api/v1/scans/launch-test': {
+    [`${OP_BASE_PATH}/scans/launch-test`]: {
         'POST': 'Launched a new test scan in ASM'
     },
 
     // Reports
-    '/op/api/v1/reports': {
+    [`${OP_BASE_PATH}/reports`]: {
         'GET': 'Listed reports in ASM',
         'POST': 'Generated a new report in ASM'
     },
-    '/op/api/v1/reports/download/[^/]+': {
+    [`${OP_BASE_PATH}/reports/download/[^/]+`]: {
         'GET': 'Downloaded a report from ASM'
     },
-    '/op/api/v1/reports/preview/[^/]+': {
+    [`${OP_BASE_PATH}/reports/preview/[^/]+`]: {
         'GET': 'Previewed a report in ASM'
     },
-    '/op/api/v1/reports/[^/]+': {
+    [`${OP_BASE_PATH}/reports/[^/]+`]: {
         'DELETE': 'Deleted a report in ASM'
     },
 
     // Exposures
-    '/op/api/v1/exposures': {
+    [`${OP_BASE_PATH}/exposures`]: {
         'GET': 'Listed exposures in ASM'
     },
-    '/op/api/v1/exposures/sync': {
+    [`${OP_BASE_PATH}/exposures/sync`]: {
         'POST': 'Synced exposures to an external system from ASM'
     },
-    '/op/api/v1/exposures/[^/]+': {
+    [`${OP_BASE_PATH}/exposures/[^/]+`]: {
         'PATCH': 'Updated an exposure in ASM'
     },
 
     // Dashboard
-    '/op/api/v1/dashboard/main': {
+    [`${OP_BASE_PATH}/dashboard/main`]: {
         'GET': 'Viewed the main ASM dashboard'
     },
-    '/op/api/v1/dashboard/roi': {
+    [`${OP_BASE_PATH}/dashboard/roi`]: {
         'GET': 'Viewed the ROI ASM dashboard'
     },
 
     // Rules
-    '/op/api/v1/rules/all': {
+    [`${OP_BASE_PATH}/rules/all`]: {
         'POST': 'Triggered all rules in ASM'
     },
-    '/op/api/v1/rules/[^/]+': {
+    [`${OP_BASE_PATH}/rules/[^/]+`]: {
         'POST': 'Triggered a specific rule in ASM'
     },
 
     // Assets
-    '/op/api/v1/assets': {
+    [`${OP_BASE_PATH}/assets`]: {
         'GET': 'Listed assets in ASM'
     },
-    '/op/api/v1/assets/[^/]+/timeline': {
+    [`${OP_BASE_PATH}/assets/[^/]+/timeline`]: {
         'GET': 'Viewed asset timeline in ASM'
     },
-    '/op/api/v1/assets/[^/]+/exposure': {
+    [`${OP_BASE_PATH}/assets/[^/]+/exposure`]: {
         'POST': 'Updated asset exposure status in ASM'
     }
 };
