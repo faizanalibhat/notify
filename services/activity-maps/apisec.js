@@ -1,4 +1,7 @@
 module.exports = {
+    // Health Check
+    '/apisec/api/v1/health': { 'GET': 'Performed a health check' },
+
     // Rules
     '/apisec/api/v1/rule/summary': { 'GET': 'Viewed rules summary' },
     '/apisec/api/v1/rule/search': { 'GET': 'Searched rules' },
