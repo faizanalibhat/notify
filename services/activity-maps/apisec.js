@@ -1,6 +1,6 @@
 module.exports = {
     // Health Check
-    '/apisec/api/v1/health': { 'GET': 'Performed a health check' },
+    '/apisec/api/v1/health': { 'GET': 'Performed a health check' }, // won't work because "/health" doesn't pass through middleware
 
     // Rules
     '/apisec/api/v1/rule/summary': { 'GET': 'Viewed rules summary' },
