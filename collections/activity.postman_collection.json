@@ -1,0 +1,68 @@
+{
+	"info": {
+		"_postman_id": "b2b2f12a-c4g0-5c32-a584-83c4f299c4f2",
+		"name": "Fruits",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Activity Routes",
+			"description": "This folder contains all the routes for managing activities.",
+			"item": [
+				{
+					"name": "Get All Activities",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{notify}}/activity/bulk",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{notify}}",
+								"activity",
+								"bulk"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"try {",
+							"    let response = pm.response.json();",
+							"",
+							"    if (pm.request.method === 'POST' && pm.response.code >= 200 && pm.response.code < 300) {",
+							"        let resourceId = response.id || response._id;",
+							"        if (resourceId) {",
+							"            pm.environment.set(\"activityId\", resourceId);",
+							"            console.log(\"Saved activityId: \" + resourceId);",
+							"        }",
+							"    }",
+							"",
+							"    if (pm.request.method === 'DELETE' && pm.response.code >= 200 && pm.response.code < 300) {",
+							"        pm.environment.set(\"activityId\", \"\");",
+							"        console.log(\"Cleared activityId.\");",
+							"    }",
+							"} catch (e) {",
+							"    console.log(e);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		}
+	]
+}

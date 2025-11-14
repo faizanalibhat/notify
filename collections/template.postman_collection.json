@@ -1,0 +1,211 @@
+{
+	"info": {
+		"_postman_id": "c2a9f01a-b3f9-4b21-9473-72b3e188b3e1",
+		"name": "Fruits",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Template Routes",
+			"description": "This folder contains all the routes for managing templates in the notification service.",
+			"item": [
+				{
+					"name": "Create Template",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Template Name\",\n  \"subject\": \"Your Subject Here\",\n  \"body\": \"<h1>Hello World</h1>\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}{{notify}}/template",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{notify}}",
+								"template"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Templates",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{notify}}/template/bulk",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{notify}}",
+								"template",
+								"bulk"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Template By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{notify}}/template/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{notify}}",
+								"template",
+								":id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Template By Id",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"Updated Subject\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}{{notify}}/template/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{notify}}",
+								"template",
+								":id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Template By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{notify}}/template/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{notify}}",
+								"template",
+								":id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Template By Id",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{notify}}/template/:id/test",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{notify}}",
+								"template",
+								":id",
+								"test"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"try {",
+							"    let response = pm.response.json();",
+							"",
+							"    if (pm.request.method === 'POST' && pm.response.code >= 200 && pm.response.code < 300) {",
+							"        let resourceId = response.id || response._id;",
+							"        if (resourceId) {",
+							"            pm.environment.set(\"templateId\", resourceId);",
+							"            console.log(\"Saved templateId: \" + resourceId);",
+							"        }",
+							"    }",
+							"",
+							"    if (pm.request.method === 'DELETE' && pm.response.code >= 200 && pm.response.code < 300) {",
+							"        pm.environment.set(\"templateId\", \"\");",
+							"        console.log(\"Cleared templateId.\");",
+							"    }",
+							"} catch (e) {",
+							"    console.log(e);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		}
+	]
+}
