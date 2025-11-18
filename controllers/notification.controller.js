@@ -18,15 +18,17 @@ const getAllNotifications = async (req, res) => {
     if (seen) filter.seen = seen == 'true';
 
     if (search) {
-        filter.title = { $regex: search, $options: 'i' };
-        filter.description = { $regex: search, $options: 'i' };
+        filter.$or = [
+            { title: { $regex: search, $options: 'i' } },
+            { description: { $regex: search, $options: 'i' } },
+        ];
     }
 
     for (let [key,val] of Object.entries(req.query)) {
         if (!['page', 'limit', 'origin', 'seen', 'search'].includes(key)) {
 
             if (key == 'product') filter['origin'] = val;
-            else if (key == "person") filter['createdBy.email'] = val; 
+            else if (key == "email") filter['createdBy.email'] = val; 
         }
     }
 
