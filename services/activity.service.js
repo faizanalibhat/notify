@@ -7,6 +7,7 @@ const apiSecMap = require('./activity-maps/apisec');
 const vmMap = require('./activity-maps/vm');
 const aimMap = require('./activity-maps/aim');
 const riskRegisterMap = require('./activity-maps/riskRegister');
+const tmMap = require('./activity-maps/tm');
 
 // endpoint to activity map
 const endpointWithMethodActionMap = {
@@ -17,6 +18,7 @@ const endpointWithMethodActionMap = {
     ...vmMap,
     ...aimMap,
     ...riskRegisterMap,
+    ...tmMap,
 }
 
 
