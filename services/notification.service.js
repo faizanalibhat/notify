@@ -8,7 +8,7 @@ const createNotification = async (orgId, notification) => {
 
         return created;
     }
-    catch(err) {
+    catch (err) {
         console.log("[+] ERROR WHILE CREATING NOTIFICATION ", err.message);
 
         return { code: 500, status: "failed", message: "failed to create notification" };
@@ -16,17 +16,21 @@ const createNotification = async (orgId, notification) => {
 }
 
 
-const getAllNotifications = async (orgId, filter={}, page=1, limit=10) => {
+const getAllNotifications = async (orgId, filter = {}, page = 1, limit = 10) => {
 
     console.log("[+] FILTER: ", filter);
 
-    const notifications = await Notification.find({ orgId, ...filter }).sort({ createdAt: -1 }).skip((page-1)*limit).limit(limit).lean();
+    const notifications = await Notification.find({ orgId, ...filter }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean();
 
     const total = await Notification.countDocuments({ orgId, 'createdBy.email': filter['createdBy.email'] });
 
     const unseen = await Notification.countDocuments({ orgId, seen: false, 'createdBy.email': filter['createdBy.email'] });
 
-    return { notifications, total, unseen };
+    const supportedFilters = {};
+    supportedFilters.users = await Notification.distinct('createdBy.email', { orgId: orgId });
+    supportedFilters.product = await Notification.distinct('origin', { orgId: orgId });
+
+    return { notifications, total, unseen, filters: supportedFilters };
 }
 
 
@@ -38,7 +42,7 @@ const markNotificationSeen = async (orgId, notificationId) => {
 
         return updated;
     }
-    catch(err) {
+    catch (err) {
         console.log("[+] ERROR WHILE CREATING NOTIFICATION ", err.message);
 
         return { code: 500, status: "failed", message: "failed to create notification" };
@@ -53,7 +57,7 @@ const markAllAsSeen = async (orgId, origin) => {
 
         return updated;
     }
-    catch(error) {
+    catch (error) {
         console.log("[+] FAILED TO MARK AS SEEN");
         return { code: 500, status: "failed", message: "all marked as seen" };
     }
