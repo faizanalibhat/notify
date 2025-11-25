@@ -1,10 +1,33 @@
 const notificationService = require("../services/notification.service");
 
 
+const getPeriodStartDate = (period) => {
+    const now = new Date();
+    const value = parseInt(period.slice(0, -1));
+    const unit = period.slice(-1);
+
+    switch (unit) {
+        case 'd': // days
+            now.setDate(now.getDate() - value);
+            break;
+        case 'h': // hours
+            now.setHours(now.getHours() - value);
+            break;
+        case 'm': // months
+            now.setMonth(now.getMonth() - value);
+            break;
+        default:
+            return null;
+    }
+
+    return now;
+}
+
+
 const getAllNotifications = async (req, res) => {
     const { orgId, email } = req.authenticatedService;
 
-    const { origin, seen, search } = req.query;
+    const { origin, seen, search, period } = req.query;
 
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit);
@@ -24,8 +47,18 @@ const getAllNotifications = async (req, res) => {
         ];
     }
 
+    if (period) {
+        const validPeriodPattern = /^\d+[dhm]$/;
+        if (validPeriodPattern.test(period)) {
+            const startDate = getPeriodStartDate(period);
+            if (startDate) {
+                filter.createdAt = { $gte: startDate };
+            }
+        }
+    }
+
     for (let [key, val] of Object.entries(req.query)) {
-        if (!['page', 'limit', 'origin', 'seen', 'search'].includes(key)) {
+        if (!['page', 'limit', 'origin', 'seen', 'search', 'period'].includes(key)) {
 
             if (!val) continue;
 
