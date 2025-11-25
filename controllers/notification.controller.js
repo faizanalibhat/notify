@@ -27,13 +27,19 @@ const getAllNotifications = async (req, res) => {
     for (let [key, val] of Object.entries(req.query)) {
         if (!['page', 'limit', 'origin', 'seen', 'search'].includes(key)) {
 
+            if (!val) continue;
+
             if (key == 'product') {
-                const products = val.split(",").map(p => p.trim());
-                filter['origin'] = products.length > 1 ? { $in: products } : products[0];
+                const products = val.split(",").map(p => p.trim()).filter(p => p);
+                if (products.length > 0) {
+                    filter['origin'] = products.length > 1 ? { $in: products } : products[0];
+                }
             }
             else if (key == "email") {
-                const emails = val.split(",").map(e => e.trim());
-                filter['createdBy.email'] = emails.length > 1 ? { $in: emails } : emails[0];
+                const emails = val.split(",").map(e => e.trim()).filter(e => e);
+                if (emails.length > 0) {
+                    filter['createdBy.email'] = emails.length > 1 ? { $in: emails } : emails[0];
+                }
             }
         }
     }
