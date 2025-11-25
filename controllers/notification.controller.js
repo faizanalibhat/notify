@@ -24,11 +24,17 @@ const getAllNotifications = async (req, res) => {
         ];
     }
 
-    for (let [key,val] of Object.entries(req.query)) {
+    for (let [key, val] of Object.entries(req.query)) {
         if (!['page', 'limit', 'origin', 'seen', 'search'].includes(key)) {
 
-            if (key == 'product') filter['origin'] = val;
-            else if (key == "email") filter['createdBy.email'] = val; 
+            if (key == 'product') {
+                const products = val.split(",").map(p => p.trim());
+                filter['origin'] = products.length > 1 ? { $in: products } : products[0];
+            }
+            else if (key == "email") {
+                const emails = val.split(",").map(e => e.trim());
+                filter['createdBy.email'] = emails.length > 1 ? { $in: emails } : emails[0];
+            }
         }
     }
 
