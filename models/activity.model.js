@@ -17,4 +17,7 @@ const activitySchema = new mongoose.Schema({
 }, { timestamps: true, strict: false });
 
 
+activitySchema.index({ createdAt: 1 }, { expireAfterSeconds: 2592000 });
+
+
 module.exports = mongoose.model("activity", activitySchema);
