@@ -5,7 +5,6 @@ const getAllNotifications = async (req, res) => {
     const { orgId, email } = req.authenticatedService;
 
     const { origin, seen, search } = req.query;
-    const { users, product } = req.body.filters || {};
 
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit);
@@ -16,14 +15,6 @@ const getAllNotifications = async (req, res) => {
 
     filter['createdBy.email'] = { $ne: email };
 
-    if (users) {
-        filter['createdBy.email'] = { $in: users };
-    }
-
-    if (product) {
-        filter.origin = { $in: product };
-    }
-
     if (seen) filter.seen = seen == 'true';
 
     if (search) {
@@ -31,6 +22,14 @@ const getAllNotifications = async (req, res) => {
             { title: { $regex: search, $options: 'i' } },
             { description: { $regex: search, $options: 'i' } },
         ];
+    }
+
+    for (let [key,val] of Object.entries(req.query)) {
+        if (!['page', 'limit', 'origin', 'seen', 'search'].includes(key)) {
+
+            if (key == 'product') filter['origin'] = val;
+            else if (key == "email") filter['createdBy.email'] = val; 
+        }
     }
 
     const notifications = await notificationService.getAllNotifications(orgId, filter, page, limit);
