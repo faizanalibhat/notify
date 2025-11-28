@@ -1,24 +1,26 @@
 const Activity = require("../models/activity.model");
 
-const vsMap = require('./activity-maps/vs');
-const opMap = require('./activity-maps/op');
-const asmMap = require('./activity-maps/asm');
-const apiSecMap = require('./activity-maps/apisec');
-const vmMap = require('./activity-maps/vm');
 const aimMap = require('./activity-maps/aim');
+const apiSecMap = require('./activity-maps/apisec');
+const asmMap = require('./activity-maps/asm');
+const authMap = require('./activity-maps/auth');
+const opMap = require('./activity-maps/op');
 const riskRegisterMap = require('./activity-maps/riskRegister');
 const tmMap = require('./activity-maps/tm');
+const vmMap = require('./activity-maps/vm');
+const vsMap = require('./activity-maps/vs');
 
 // endpoint to activity map
 const endpointWithMethodActionMap = {
-    ...vsMap,
-    ...opMap,
-    ...asmMap,
-    ...apiSecMap,
-    ...vmMap,
     ...aimMap,
+    ...apiSecMap,
+    ...asmMap,
+    ...authMap,
+    ...opMap,
     ...riskRegisterMap,
     ...tmMap,
+    ...vmMap,
+    ...vsMap,
 }
 
 
@@ -52,16 +54,16 @@ const createActivity = async (orgId, activity) => {
 
         return created;
     }
-    catch(error) {
+    catch (error) {
         console.log(error);
         return { status: "failed", message: "failed to create activity" };
     }
 }
 
 
-const getAllActivity = async (orgId, filter={}, page=1, limit=10, sortBy='createdAt', sortAs="desc") => {
+const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy = 'createdAt', sortAs = "desc") => {
     try {
-        const activity = await Activity.find({ orgId, ...filter }).sort({ [sortBy]: sortAs == 'desc' ? -1 : 1 }).skip((page-1)*limit).limit(limit);
+        const activity = await Activity.find({ orgId, ...filter }).sort({ [sortBy]: sortAs == 'desc' ? -1 : 1 }).skip((page - 1) * limit).limit(limit);
         const total = await Activity.countDocuments({ orgId });
 
 
@@ -70,9 +72,9 @@ const getAllActivity = async (orgId, filter={}, page=1, limit=10, sortBy='create
         supportedFilters.users = await Activity.distinct('user.email', { orgId: orgId });
         supportedFilters.product = await Activity.distinct('origin', { orgId: orgId });
 
-        return { activity, total, filters: supportedFilters }; 
+        return { activity, total, filters: supportedFilters };
     }
-    catch(err) {
+    catch (err) {
         console.log(err);
         return { status: 'failed', message: "failed to create activity" };
     }
