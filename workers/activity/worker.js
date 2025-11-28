@@ -39,6 +39,7 @@ async function activityLogsHandler(payload, msg, channel) {
 
   try {
     const {
+      type = "audit",
       headers = {},
       query = {},
       body = {},
@@ -66,7 +67,7 @@ async function activityLogsHandler(payload, msg, channel) {
     // throw this log to be pushed to siem
     await mqbroker.publish("activitylogs", "activitylogs.siem.push", { ...payload, action });
 
-    if (!action) {
+    if (type != "audit" || !action) {
       return channel.ack(msg);
     }
 
