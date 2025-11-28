@@ -95,7 +95,7 @@ async function activityLogsHandler(payload, msg, channel) {
       origin,
     };
 
-    const created = await activityService.createActivity(orgId, activity, original: payload);
+    const created = await activityService.createActivity(orgId, activity);
 
     if (created?.status === "failed") {
       console.error("[+] FAILED TO CREATE ACTIVITY");
