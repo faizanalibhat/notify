@@ -53,6 +53,9 @@ module.exports = {
     [`${OP_BASE_PATH}/rules/all`]: {
         'POST': 'Triggered all rules in ASM'
     },
+    [`${OP_BASE_PATH}/rules/sync`]: {
+        'POST': 'Synced default rules in ASM'
+    },
     [`${OP_BASE_PATH}/rules/[^/]+`]: {
         'POST': 'Triggered a specific rule in ASM'
     },
