@@ -63,6 +63,9 @@ async function activityLogsHandler(payload, msg, channel) {
 
     console.log("[+] ACTIVITY LOG RECEIVED ", origin, method, path);
 
+    // throw this log to be pushed to siem
+    await mqbroker.publish("activitylogs", "activitylogs.siem.push", { ...payload, action });
+
     if (!action) {
       return channel.ack(msg);
     }
@@ -73,6 +76,7 @@ async function activityLogsHandler(payload, msg, channel) {
     };
 
     const activity = {
+      type: payload.type,
       user: {
         name: `${firstName} ${lastName}`.trim(),
         email,
@@ -91,7 +95,7 @@ async function activityLogsHandler(payload, msg, channel) {
       origin,
     };
 
-    const created = await activityService.createActivity(orgId, activity);
+    const created = await activityService.createActivity(orgId, activity, original: payload);
 
     if (created?.status === "failed") {
       console.error("[+] FAILED TO CREATE ACTIVITY");
