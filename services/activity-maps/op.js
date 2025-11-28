@@ -1,41 +1,79 @@
+const OP_BASE_PATH = '/op/api/v1';
+
 module.exports = {
-    // OP API
-    '/op/assets/subdomains': {
-        'GET': 'Listed Subdomains in ASM',
+    // Settings
+    [`${OP_BASE_PATH}/settings`]: {
+        'GET': 'Viewed ASM settings',
+        'POST': 'Updated ASM settings'
     },
-    '/op/assets/ips': {
-        'GET': 'Listed IP Addresses in ASM',
+
+    // Scans
+    [`${OP_BASE_PATH}/scans`]: {
+        'GET': 'Listed scans'
     },
-    '/op/dns': {
-        'GET': 'Listed DNS Records in ASM'
+    [`${OP_BASE_PATH}/scans/launch-test`]: {
+        'POST': 'Launched a test scan'
     },
-    '/op/ports': {
-        'GET': "Listed Ports in ASM"
+
+    // Reports
+    [`${OP_BASE_PATH}/reports`]: {
+        'GET': 'Listed reports',
+        'POST': 'Generated a new report'
     },
-    '/op/technologies': {
-        'GET': "Listed Technologies in ASM"
+    [`${OP_BASE_PATH}/reports/download/[^/]+`]: {
+        'GET': 'Downloaded a report'
     },
-    '/op/assets/exposure': {
-        'GET': "Listed Exposures in ASM",
+    [`${OP_BASE_PATH}/reports/preview/[^/]+`]: {
+        'GET': 'Previewed a report'
     },
-    'op/assets/exposure/[0-9a-f]+?/safe': {
-        'POST': 'Marked An Exposure as Safe'
+    [`${OP_BASE_PATH}/reports/[^/]+`]: {
+        'DELETE': 'Deleted a report'
     },
-    'op/assets/exposure/[0-9a-f]+?': {
-        'PATCH': 'Edited Description & Severity of an Exposure'
+
+    // Exposures
+    [`${OP_BASE_PATH}/exposures`]: {
+        'GET': 'Listed exposures'
     },
-    '/op/report': {
-        'GET': "Listed Reports in ASM",
-        'POST': "Report Generated in ASM"
+    [`${OP_BASE_PATH}/exposures/reason-list/[^/]+`]: {
+        'GET': 'Listed exposure reasons'
     },
-    '/op/cmd/scans': {
-        'GET': "Listed Scans in ASM",
-        'POST': "Created a new scan in ASM"
+    [`${OP_BASE_PATH}/exposures/csv`]: {
+        'GET': 'Downloaded exposures CSV'
     },
-    '/op/cmd/scans/[0-9a-f]+?': {
-        'DELETE': "Deleted a scan in ASM"
+    [`${OP_BASE_PATH}/exposures/sync`]: {
+        'POST': 'Synced exposures to VM'
     },
-    '/op/assets/[a-z]+?/asset/[0-9a-f]+?/exposure': {
-        'POST': "Created an Exposure",
+    [`${OP_BASE_PATH}/exposures/[^/]+`]: {
+        'PATCH': 'Updated an exposure'
     },
+
+    // Dashboard
+    [`${OP_BASE_PATH}/dashboard/main`]: {
+        'GET': 'Viewed main dashboard'
+    },
+    [`${OP_BASE_PATH}/dashboard/roi`]: {
+        'GET': 'Viewed ROI dashboard'
+    },
+
+    // Rules
+    [`${OP_BASE_PATH}/rules/all`]: {
+        'POST': 'Triggered all rules'
+    },
+    [`${OP_BASE_PATH}/rules/sync`]: {
+        'POST': 'Synced default rules'
+    },
+    [`${OP_BASE_PATH}/rules/[^/]+`]: {
+        'POST': 'Triggered a specific rule'
+    },
+
+    // Assets
+    [`${OP_BASE_PATH}/assets`]: {
+        'GET': 'Listed assets'
+    },
+    [`${OP_BASE_PATH}/assets/[^/]+/timeline`]: {
+        'GET': 'Viewed asset timeline'
+    },
+    [`${OP_BASE_PATH}/assets/[^/]+/exposure`]: {
+        'POST': 'Updated asset exposure status'
+    }
 };
