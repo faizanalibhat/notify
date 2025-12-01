@@ -39,6 +39,7 @@ async function activityLogsHandler(payload, msg, channel) {
 
   try {
     const {
+      type = "access",
       headers = {},
       query = {},
       body = {},
@@ -53,18 +54,22 @@ async function activityLogsHandler(payload, msg, channel) {
 
     const { orgId, firstName = "", lastName = "", email = "" } = authContext;
 
-    if (!orgId) {
-      console.warn("[!] Skipping activity log: missing orgId");
-      return channel.ack(msg);
-    }
 
     const endpoint = originalUrl?.split("?")[0] || path;
     const action = activityService.parseActivity(endpoint, method);
 
     console.log("[+] ACTIVITY LOG RECEIVED ", origin, method, path);
 
-    if (!action) {
+    // throw this log to be pushed to siem
+    await mqbroker.publish("activitylogs", "activitylogs.siem.push", { action, type: payload.type || "access", ...payload });
+
+    if (type != "access" || !action) {
       return channel.ack(msg);
+    }
+
+    if (!orgId) {
+        console.warn("[!] Skipping activity log: missing orgId");
+        return channel.ack(msg);
     }
 
     const saveHeaders = {
@@ -73,6 +78,7 @@ async function activityLogsHandler(payload, msg, channel) {
     };
 
     const activity = {
+      type: payload.type,
       user: {
         name: `${firstName} ${lastName}`.trim(),
         email,
