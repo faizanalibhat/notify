@@ -38,7 +38,7 @@ module.exports = {
     [`${AUTH_BASE_PATH}/auth/join/[^/]+`]: { 'GET': 'Checked join link token' },
     [`${AUTH_BASE_PATH}/auth/approval-status`]: { 'POST': 'Checked approval status' },
     [`${AUTH_BASE_PATH}/auth/profile-picture`]: {
-        'GET': 'Viewed profile picture',
+        // 'GET': 'Viewed profile picture',
         'POST': 'Uploaded profile picture'
     },
     [`${AUTH_BASE_PATH}/auth/users-by-emails`]: { 'GET': 'Viewed users by emails' },
