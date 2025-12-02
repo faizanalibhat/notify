@@ -67,7 +67,7 @@ async function activityLogsHandler(payload, msg, channel) {
 
     const action = activityService.parseActivity(endpoint, method);
 
-    console.log("[+] ACTIVITY LOG RECEIVED ", origin, method, path);
+    console.log("[+] ACTIVITY LOG RECEIVED ", origin, method, endpoint);
 
     // throw this log to be pushed to siem
     await mqbroker.publish("activitylogs", "activitylogs.siem.push", { action, type: payload.type || "access", ...payload });
