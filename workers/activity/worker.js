@@ -55,7 +55,11 @@ async function activityLogsHandler(payload, msg, channel) {
     const { orgId, firstName = "", lastName = "", email = "" } = authContext;
 
 
-    const endpoint = originalUrl?.split("?")[0] || path;
+    let endpoint = originalUrl?.split("?")[0] || path;
+
+    // normalize endpoint
+    endpoint = endpoint.replace(/\/{2,}/g, '/');
+
     const action = activityService.parseActivity(endpoint, method);
 
     console.log("[+] ACTIVITY LOG RECEIVED ", origin, method, path);
@@ -68,8 +72,8 @@ async function activityLogsHandler(payload, msg, channel) {
     }
 
     if (!orgId) {
-        console.warn("[!] Skipping activity log: missing orgId");
-        return channel.ack(msg);
+      console.warn("[!] Skipping activity log: missing orgId");
+      return channel.ack(msg);
     }
 
     const saveHeaders = {
@@ -116,12 +120,12 @@ async function activityLogsHandler(payload, msg, channel) {
 
 
 async function main() {
-    // use this when running in isolation from main app.
-    // await connectDb();
+  // use this when running in isolation from main app.
+  // await connectDb();
 
 
-    // consume events
-    await mqbroker.consume("activitylogs", "activitylogs.all", activityLogsHandler, "activityLogsQueue");
+  // consume events
+  await mqbroker.consume("activitylogs", "activitylogs.all", activityLogsHandler, "activityLogsQueue");
 }
 
 
