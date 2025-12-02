@@ -46,6 +46,9 @@ module.exports = {
         'PUT': 'Updated an assessment',
         'DELETE': 'Deleted an assessment'
     },
+    [`/csm/api/assessments/[^/]+`]: {
+        'PUT': 'Updated an assessment'
+    },
 
     // Vulnerabilities
     [`${VM_BASE_PATH}/myVulns`]: { 'GET': 'Listed vulnerabilities' },
@@ -209,6 +212,17 @@ module.exports = {
     // Imports
     [`${VM_BASE_PATH}/import/vulns/[^/]+`]: { 'POST': 'Imported vulns' },
     [`${VM_BASE_PATH}/import/[^/]+/[^/]+`]: { 'POST': 'Imported vulnerabilities' },
+
+    // SLA Monitor
+    [`${VM_BASE_PATH}/sla-cron/monitor`]: { 'POST': 'Triggered SLA monitoring' },
+    [`${VM_BASE_PATH}/sla-cron/report`]: { 'POST': 'Triggered weekly SLA report' },
+    [`${VM_BASE_PATH}/sla-cron/run-all`]: { 'POST': 'Triggered full SLA cron job' },
+
+    // Demo Data
+    [`${VM_BASE_PATH}/demo-data/generate`]: { 'POST': 'Generated demo data' },
+
+    // Admin & Internal
+    [`/vm/status`]: { 'GET': 'Checked VM service status' },
 
     // Downloads
     [`/vm/uploads/[^/]+`]: { 'GET': 'Downloaded file' },

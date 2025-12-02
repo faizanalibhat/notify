@@ -35,6 +35,12 @@ function normalizeIp(ip) {
 
 async function activityLogsHandler(payload, msg, channel) {
 
+  // const routingKey = msg.fields.routingKey;
+
+  // // Prevent processing our own emitted events
+  // if (routingKey === "activitylogs.siem.push") {
+  //   return channel.ack(msg);
+  // }
 
   try {
     const {
@@ -59,7 +65,7 @@ async function activityLogsHandler(payload, msg, channel) {
     // FIX: Normalize endpoint for VM service
     if (origin === "vm") {
       endpoint = endpoint.replace(/\/\/+/g, "/");
-      if (!endpoint.startsWith("/vm")) {
+      if (!endpoint.startsWith("/vm") && !endpoint.startsWith("/csm")) {
         endpoint = `/vm${endpoint}`;
       }
     }
