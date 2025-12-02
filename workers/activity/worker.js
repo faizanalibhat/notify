@@ -55,11 +55,7 @@ async function activityLogsHandler(payload, msg, channel) {
     const { orgId, firstName = "", lastName = "", email = "" } = authContext;
 
 
-    let endpoint = originalUrl?.split("?")[0] || path;
-
-    // normalize endpoint
-    endpoint = endpoint.replace(/\/{2,}/g, '/');
-
+    const endpoint = originalUrl?.split("?")[0] || path;
     const action = activityService.parseActivity(endpoint, method);
 
     console.log("[+] ACTIVITY LOG RECEIVED ", origin, method, path);
