@@ -57,6 +57,14 @@ async function activityLogsHandler(payload, msg, channel) {
 
     let endpoint = originalUrl?.split("?")[0] || path;
 
+    // FIX: Normalize endpoint for VM service
+    if (origin === "vm") {
+      endpoint = endpoint.replace(/\/\/+/g, "/");
+      if (!endpoint.startsWith("/vm")) {
+        endpoint = `/vm${endpoint}`;
+      }
+    }
+
     const action = activityService.parseActivity(endpoint, method);
 
     console.log("[+] ACTIVITY LOG RECEIVED ", origin, method, path);
