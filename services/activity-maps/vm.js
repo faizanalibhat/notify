@@ -208,5 +208,9 @@ module.exports = {
 
     // Imports
     [`${VM_BASE_PATH}/import/vulns/[^/]+`]: { 'POST': 'Imported vulns' },
-    [`${VM_BASE_PATH}/import/[^/]+/[^/]+`]: { 'POST': 'Imported vulnerabilities' }
+    [`${VM_BASE_PATH}/import/[^/]+/[^/]+`]: { 'POST': 'Imported vulnerabilities' },
+
+    // Downloads
+    [`/vm/uploads/[^/]+`]: { 'GET': 'Downloaded file' },
+
 };
