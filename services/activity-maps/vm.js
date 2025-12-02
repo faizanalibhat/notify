@@ -1,4 +1,4 @@
-const VM_BASE_PATH = '/api';
+const VM_BASE_PATH = '/vm/api';
 
 module.exports = {
     // Assessments
