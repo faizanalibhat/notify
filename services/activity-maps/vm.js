@@ -17,7 +17,8 @@ module.exports = {
     [`${VM_BASE_PATH}/assessments/assessmentReview`]: { 'POST': 'Locked assessment for review' },
     [`${VM_BASE_PATH}/assessments/lock/[^/]+`]: { 'POST': 'Locked an assessment' },
     [`${VM_BASE_PATH}/assessments/assessmentApprove`]: { 'POST': 'Approved an assessment' },
-    [`${VM_BASE_PATH}/assessments/collaborators/add`]: { 'POST': 'Added collaborator to assessment' },
+    [`${VM_BASE_PATH}/assessments/[^/]+/collaborators/add`]: { 'POST': 'Added collaborator to assessment' },
+    [`${VM_BASE_PATH}/assessments/[^/]+/collaborators/remove`]: { 'POST': 'Removed collaborator from assessment' },
     [`${VM_BASE_PATH}/assessments/report/generate-report/[^/]+`]: {
         'POST': 'Generated assessment report',
         'GET': 'Generated assessment data'
