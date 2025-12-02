@@ -1,4 +1,4 @@
-const VS_BASE_PATH = '/vs/api';
+const VS_BASE_PATH = '/api';
 
 module.exports = {
     // Groups
