@@ -222,7 +222,11 @@ module.exports = {
     [`${VM_BASE_PATH}/demo-data/generate`]: { 'POST': 'Generated demo data' },
 
     // Admin & Internal
-    [`/vm/status`]: { 'GET': 'Checked VM service status' },
+    // [`/vm/admin/run-asset-cron`]: { 'GET': 'Manually triggered asset stats update' },
+    // [`/vm/admin/run-assessment-cron`]: { 'GET': 'Manually triggered assessment stats update' },
+    // [`${VM_BASE_PATH}/internal/run-asset-cron`]: { 'POST': 'Manually triggered asset stats update (Internal)' },
+    // [`${VM_BASE_PATH}/internal/run-assessment-cron`]: { 'POST': 'Manually triggered assessment stats update (Internal)' },
+    // [`/vm/status`]: { 'GET': 'Checked VM service status' },
 
     // Downloads
     [`/vm/uploads/[^/]+`]: { 'GET': 'Downloaded file' },
