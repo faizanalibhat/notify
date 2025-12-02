@@ -35,7 +35,6 @@ function normalizeIp(ip) {
 
 async function activityLogsHandler(payload, msg, channel) {
 
-  console.log("[+] GOT ACTIVITY ", payload.origin, payload.method, payload.path);
 
   try {
     const {
@@ -65,9 +64,9 @@ async function activityLogsHandler(payload, msg, channel) {
       }
     }
 
-    const action = activityService.parseActivity(endpoint, method);
+    console.log("[+] GOT ACTIVITY ", origin, method, endpoint);
 
-    console.log("[+] ACTIVITY LOG RECEIVED ", origin, method, endpoint);
+    const action = activityService.parseActivity(endpoint, method);
 
     // throw this log to be pushed to siem
     await mqbroker.publish("activitylogs", "activitylogs.siem.push", { action, type: payload.type || "access", ...payload });
