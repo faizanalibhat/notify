@@ -42,7 +42,9 @@ async function notificationHandler(payload, msg, channel) {
                 }
             }
 
-            let title_html = notification.title_html;
+            // If title_html is passed in the payload (like from ASM), use it directly.
+            // Otherwise, try to construct it if missing.
+            let title_html = payload.title_html || notification.title_html;
 
             if (!title_html && user && notification.resourceMeta) {
                 const { vulnTitle, resourceName, resource } = notification.resourceMeta;
