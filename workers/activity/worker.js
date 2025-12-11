@@ -45,7 +45,7 @@ async function activityLogsHandler(payload, msg, channel) {
 
   try {
     // Store raw activity log regardless of type or validity
-    await ActivityLog.create(payload).catch(err =>
+    await ActivityLog.create({ payload }).catch(err =>
       console.error("[!] Failed to store raw activity log:", err.message)
     );
 
