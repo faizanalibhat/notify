@@ -21,7 +21,7 @@ async function notificationHandler(payload, msg, channel) {
             let recipientsByRoles = await orgMembersResolver.resolveMembersUsingRoles(orgId, roles);
             let recipientsByTeams = await orgMembersResolver.resolveMembersUsingTeams(orgId, teams);
 
-            recieversList = [ ...recieversList, ...recipientsByRoles, ...recipientsByTeams ];
+            recieversList = [...recieversList, ...recipientsByRoles, ...recipientsByTeams];
         }
 
         // publish to channels with recievers resolved.
@@ -42,9 +42,19 @@ async function notificationHandler(payload, msg, channel) {
                 }
             }
 
+            let title_html = notification.title_html;
+
+            if (!title_html && notification.resourceMeta?.vulnTitle && user) {
+                const { vulnTitle } = notification.resourceMeta;
+                const { resourceUrl } = notification;
+
+                title_html = `<a target='_blank' href="/user/${user.userId}"><b>${user.name}</b></a> reported the vuln <a href="${resourceUrl}">${vulnTitle}</a>`;
+            }
+
             let obj = {
                 orgId,
                 ...notification,
+                title_html,
                 ...(user ? { createdBy: user } : {}),
                 sentTo: recieversList
             };
@@ -56,7 +66,7 @@ async function notificationHandler(payload, msg, channel) {
 
         channel.ack(msg);
     }
-    catch(err) {
+    catch (err) {
         console.log("[+] ERROR WHILE HANDLING EVENT IN NOTIFICATION QUEUE", err.message);
         return channel.ack(msg);
     }
