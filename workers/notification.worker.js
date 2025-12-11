@@ -44,11 +44,15 @@ async function notificationHandler(payload, msg, channel) {
 
             let title_html = notification.title_html;
 
-            if (!title_html && notification.resourceMeta?.vulnTitle && user) {
-                const { vulnTitle } = notification.resourceMeta;
+            if (!title_html && user && notification.resourceMeta) {
+                const { vulnTitle, resourceName, resource } = notification.resourceMeta;
                 const { resourceUrl } = notification;
 
-                title_html = `<a target='_blank' href="/user/${user.userId}"><b>${user.name}</b></a> reported the vuln <a href="${resourceUrl}">${vulnTitle}</a>`;
+                if (vulnTitle) {
+                    title_html = `<a target='_blank' href="/user/${user.userId}"><b>${user.name}</b></a> reported the vuln <a href="${resourceUrl}">${vulnTitle}</a>`;
+                } else if (resource === 'scan' && resourceName) {
+                    title_html = `<a target='_blank' href="/user/${user.userId}"><b>${user.name}</b></a> started the scan <a href="${resourceUrl}">${resourceName}</a>`;
+                }
             }
 
             let obj = {
