@@ -1,6 +1,7 @@
 const { mqbroker } = require("../../services/rabbitmq.service");
 const { connectDb } = require("../../models/connectDb");
 const activityService = require("../../services/activity.service");
+const ActivityLog = require("../../models/activityLog.model");
 
 
 function getClientIp(req) {
@@ -43,6 +44,11 @@ async function activityLogsHandler(payload, msg, channel) {
   // }
 
   try {
+    // Store raw activity log regardless of type or validity
+    await ActivityLog.create(payload).catch(err =>
+      console.error("[!] Failed to store raw activity log:", err.message)
+    );
+
     const {
       type = "access",
       headers = {},
