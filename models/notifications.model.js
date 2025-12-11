@@ -13,7 +13,7 @@ const resourceMeta = new mongoose.Schema({
     product: { type: String },
     resource: { type: String },
     action: { type: String },
-}, { _id: false });
+}, { _id: false, strict: false });
 
 
 const notificationSchema = new mongoose.Schema({
