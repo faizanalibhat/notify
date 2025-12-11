@@ -42,24 +42,9 @@ async function notificationHandler(payload, msg, channel) {
                 }
             }
 
-            // If title_html is passed in the payload (like from ASM), use it directly.
-            // Otherwise, try to construct it if missing.
+            // Use title_html directly from the payload (passed by producer services like ASM)
+            // If the producer didn't send it, it will simply be undefined.
             let title_html = payload.title_html || notification.title_html;
-
-            console.log("[+] NOTIFY WORKER - PAYLOAD TITLE_HTML:", payload.title_html);
-            console.log("[+] NOTIFY WORKER - NOTIFICATION TITLE_HTML:", notification.title_html);
-            console.log("[+] NOTIFY WORKER - RESOLVED TITLE_HTML:", title_html);
-
-            if (!title_html && user && notification.resourceMeta) {
-                const { vulnTitle, resourceName, resource } = notification.resourceMeta;
-                const { resourceUrl } = notification;
-
-                if (vulnTitle) {
-                    title_html = `<a target='_blank' href="/user/${user.userId}"><b>${user.name}</b></a> reported the vuln <a href="${resourceUrl}">${vulnTitle}</a>`;
-                } else if (resource === 'scan' && resourceName) {
-                    title_html = `<a target='_blank' href="/user/${user.userId}"><b>${user.name}</b></a> started the scan <a href="${resourceUrl}">${resourceName}</a>`;
-                }
-            }
 
             let obj = {
                 orgId,
