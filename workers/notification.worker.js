@@ -46,6 +46,10 @@ async function notificationHandler(payload, msg, channel) {
             // Otherwise, try to construct it if missing.
             let title_html = payload.title_html || notification.title_html;
 
+            console.log("[+] NOTIFY WORKER - PAYLOAD TITLE_HTML:", payload.title_html);
+            console.log("[+] NOTIFY WORKER - NOTIFICATION TITLE_HTML:", notification.title_html);
+            console.log("[+] NOTIFY WORKER - RESOLVED TITLE_HTML:", title_html);
+
             if (!title_html && user && notification.resourceMeta) {
                 const { vulnTitle, resourceName, resource } = notification.resourceMeta;
                 const { resourceUrl } = notification;
