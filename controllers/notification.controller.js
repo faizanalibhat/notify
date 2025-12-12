@@ -36,7 +36,7 @@ const getAllNotifications = async (req, res) => {
 
     if (origin && origin != "all") filter.origin = origin;
 
-    // filter['createdBy.email'] = { $ne: email };
+    filter['createdBy.email'] = { $ne: email };
 
     if (seen) filter.seen = seen == 'true';
 
