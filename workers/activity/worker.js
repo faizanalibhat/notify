@@ -61,6 +61,7 @@ async function activityLogsHandler(payload, msg, channel) {
       path,
       originalUrl,
       ip,
+      resourceMeta,
     } = payload;
 
     const { orgId, firstName = "", lastName = "", email = "" } = authContext;
@@ -115,6 +116,7 @@ async function activityLogsHandler(payload, msg, channel) {
         method,
       },
       origin,
+      resourceMeta: resourceMeta || {},
     };
 
     const created = await activityService.createActivity(orgId, activity);

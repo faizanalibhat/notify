@@ -14,6 +14,7 @@ const activitySchema = new mongoose.Schema({
     origin: { type: String, required: true },
     user: { type: userSchema },
     raw: mongoose.Schema.Types.Mixed,
+    resourceMeta: mongoose.Schema.Types.Mixed,
 }, { timestamps: true, strict: false });
 
 
