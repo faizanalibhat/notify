@@ -73,6 +73,7 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
 
         supportedFilters.users = await Activity.distinct('user.email', { orgId: orgId });
         supportedFilters.product = await Activity.distinct('origin', { orgId: orgId });
+        supportedFilters.actionType = await Activity.distinct('resourceMeta.actionType', { orgId: orgId });
 
         return { activity, total, filters: supportedFilters };
     }
