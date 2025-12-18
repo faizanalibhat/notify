@@ -36,7 +36,8 @@ const getAllNotifications = async (req, res) => {
 
     if (origin && origin != "all") filter.origin = origin;
 
-    filter['createdBy.email'] = { $ne: email };
+    // prevent notifications from current user
+    // filter['createdBy.email'] = { $ne: email };
 
     if (seen) filter.seen = seen == 'true';
 
