@@ -140,4 +140,5 @@ async function main() {
     await mqbroker.consume("notification", "notification.email", emailNotificationHandler, "emailOnlyNotificationsQueue");
 }
 
-module.exports = { main, emailNotificationHandler };
+module.exports = main;
+module.exports.emailNotificationHandler = emailNotificationHandler;
