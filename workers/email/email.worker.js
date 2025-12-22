@@ -53,6 +53,7 @@ async function emailNotificationHandler(payload, msg, channel) {
         }
 
         // 3. Load Template
+        const locale = payload.authContext?.locale || "en";
         const template = await templateService.getTemplateBySlug(templateKey);
 
         if (!template || template.status === "failed") {
@@ -104,9 +105,26 @@ async function emailNotificationHandler(payload, msg, channel) {
 
         console.log(`${logPrefix} [+] EMAILS SENT: ${successCount} SUCCESS, ${failCount} FAILED OUT OF ${recievers.length} CONTACTS`);
 
-        // 6. Update Idempotency Status
+        // 6. Update Idempotency Status & Emit Delivery Event
         if (event_id) {
             await idempotencyService.updateStatus(event_id, CHANNEL, successCount > 0 ? "sent" : "failed");
+
+            // 7. Emit Delivery Event (Optional but Recommended)
+            if (successCount > 0) {
+                try {
+                    await mqbroker.publish("notification", "notification.email.sent", {
+                        type: "notification.email.sent",
+                        event_id,
+                        user_id: payload.authContext?.user_id, // sanitized authContext
+                        org_id: payload.orgId,
+                        template_id: templateKey,
+                        timestamp: new Date().toISOString(),
+                        trace_id
+                    });
+                } catch (emitErr) {
+                    console.log(`${logPrefix} [!] Failed to emit delivery event: ${emitErr.message}`);
+                }
+            }
         }
 
         channel.ack(msg);
