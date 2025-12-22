@@ -119,7 +119,7 @@ const { mqbroker } = require("../services/rabbitmq.service");
 
 const testEmailNotification = async (req, res) => {
     try {
-        const { email, template_id } = req.body;
+        const { email, template_id, event_id } = req.body; // Allow manual event_id
 
         // Auto-seed template if missing (to ensure test works in all environments)
         const Template = require("../models/templates.model");
@@ -139,7 +139,7 @@ const testEmailNotification = async (req, res) => {
 
         // Canonical payload structure
         const payload = {
-            event_id: crypto.randomUUID(),
+            event_id: event_id || crypto.randomUUID(),
             trace_id: "test-trace-" + Date.now(),
             slug: "global",
             store: false,
