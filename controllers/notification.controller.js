@@ -114,4 +114,51 @@ const markAllAsSeen = async (req, res) => {
 
 
 
-module.exports = { getAllNotifications, markNotificationSeen, markAllAsSeen };
+const { mqbroker } = require("../services/rabbitmq.service");
+
+const testEmailNotification = async (req, res) => {
+    try {
+        const { email, template_id } = req.body;
+
+        // Canonical payload structure
+        const payload = {
+            event_id: crypto.randomUUID(),
+            trace_id: "test-trace-" + Date.now(),
+            slug: "global",
+            store: false,
+            orgId: "test-org",
+            channels: ["email"],
+            template_id: template_id || "VM_REPORT_CREATED",
+            notification: {
+                origin: "test",
+                resourceMeta: { resource: "test" }
+            },
+            context: {
+                user_name: "Test User",
+                subject: "Test Notification",
+                title: "Test Title",
+                description: "This is a test notification",
+                timestamp: new Date().toISOString()
+            },
+            recievers: [{ email: email || "test@example.com" }],
+            authContext: {
+                user_id: "test-user-id",
+                email: email || "test@example.com",
+                locale: "en"
+            }
+        };
+
+        await mqbroker.publish("notification", "notification.email", payload);
+
+        return res.json({
+            success: true,
+            message: "Test event published",
+            event_id: payload.event_id,
+            trace_id: payload.trace_id
+        });
+    } catch (err) {
+        return res.status(500).json({ success: false, error: err.message });
+    }
+}
+
+module.exports = { getAllNotifications, markNotificationSeen, markAllAsSeen, testEmailNotification };

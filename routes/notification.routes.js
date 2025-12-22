@@ -6,11 +6,13 @@ const controller = require("../controllers/notification.controller");
 
 router
 
-.get("/bulk", controller.getAllNotifications)
+    .get("/bulk", controller.getAllNotifications)
 
-.post("/:id/seen", controller.markNotificationSeen)
+    .post("/:id/seen", controller.markNotificationSeen)
 
-.post("/seen", controller.markAllAsSeen);
+    .post("/seen", controller.markAllAsSeen)
+
+    .post("/test", controller.testEmailNotification);
 
 
 module.exports = router;
