@@ -3,109 +3,123 @@ const fs = require("fs/promises");
 const path = require("path");
 const templateService = require("../../services/template.service");
 const { connectDb } = require("../../models/connectDb");
-const transport = require("../../channels/email/index");
 const { renderTemplate } = require("../../services/render.service");
 const { getValidatorForTemplate } = require("../../services/validator.service");
+const idempotencyService = require("../../services/idempotency.service");
+const emailProvider = require("../../providers/email.provider");
 
-
-const transporter = transport();
-
+// Channel identifier for idempotency
+const CHANNEL = "email";
 
 async function emailNotificationHandler(payload, msg, channel) {
+    // Extract key fields
+    const {
+        event_id,
+        trace_id,
+        template_id,
+        slug: oldSlug, // Fallback
+        context,
+        recievers,
+        sender,
+        notification
+    } = payload;
+
+    const logPrefix = `[${trace_id || 'NO_TRACE'}] [${event_id || 'NO_EVENT'}]`;
+
     try {
-        const { slug, context, recievers, sender, notification } = payload;
-
-        // Validate payload
-        if (!slug || !recievers || !Array.isArray(recievers)) {
-            console.log("[!] Invalid payload structure, missing required fields");
-            channel.ack(msg); // Acknowledge invalid messages to prevent reprocessing
-            return;
+        // 1. Validate mandatory fields
+        if (!recievers || !Array.isArray(recievers)) {
+            console.log(`${logPrefix} [!] Invalid payload structure, missing receivers`);
+            return channel.ack(msg);
         }
 
-        const template = await templateService.getTemplateBySlug(slug);
+        // Use template_id if available, otherwise fallback to slug
+        const templateKey = template_id || oldSlug;
 
-        if (template.status === "failed") {
-            console.log("[+] SLUG DOES NOT MATCH ANY TEMPLATE");
-            channel.ack(msg); // Acknowledge as this isn't recoverable
-            return;
+        if (!templateKey) {
+            console.log(`${logPrefix} [!] Missing template_id (and no slug fallback)`);
+            return channel.ack(msg);
         }
-        
+
+        // 2. Idempotency Check
+        if (event_id) {
+            const isDuplicate = await idempotencyService.checkAndRecord(event_id, CHANNEL);
+            if (isDuplicate) {
+                console.log(`${logPrefix} [+] Duplicate event detected. Skipping.`);
+                return channel.ack(msg);
+            }
+        } else {
+            console.log(`${logPrefix} [!] WARNING: No event_id provided. Idempotency disabled.`);
+        }
+
+        // 3. Load Template
+        const template = await templateService.getTemplateBySlug(templateKey);
+
+        if (!template || template.status === "failed") {
+            console.log(`${logPrefix} [+] TEMPLATE NOT FOUND OR FAILED: ${templateKey}`);
+            if (event_id) await idempotencyService.updateStatus(event_id, CHANNEL, "failed");
+            return channel.ack(msg);
+        }
+
         if (!context) {
-            console.log("[+] CONTEXT MISSING, SKIPPING EMAIL");
-            channel.ack(msg);
-            return;
+            console.log(`${logPrefix} [+] CONTEXT MISSING, SKIPPING EMAIL`);
+            if (event_id) await idempotencyService.updateStatus(event_id, CHANNEL, "failed");
+            return channel.ack(msg);
         }
 
-        const isValid = getValidatorForTemplate(slug);
-
+        // 4. Validate Context
+        const isValid = getValidatorForTemplate(templateKey);
         if (!isValid(context)) {
-            await fs.writeFile(path.resolve("logs"), `[+] RECIEVED INCOMPLETE CONTEXT FOR EMAIL - RECIEVER : ${reciever.email} - ORIGIN : ${notification.origin} - RESOURCE : ${notification?.resourceMeta?.resource}`);
-
-            console.log("[+] GIVEN CONTEXT HAS MISSING INFO");
+            console.log(`${logPrefix} [+] GIVEN CONTEXT HAS MISSING INFO`);
+            if (event_id) await idempotencyService.updateStatus(event_id, CHANNEL, "failed");
             return channel.ack(msg);
         }
 
         const { raw } = template;
-        const emailTemplate = renderTemplate(raw, context);
+        const emailBody = renderTemplate(raw, context);
         let successCount = 0;
         let failCount = 0;
 
-        // Process emails one by one
+        // 5. Send Emails
         for (let reciever of recievers) {
             if (!reciever.email) {
-                console.log("[!] Skipping recipient with no email address");
+                console.log(`${logPrefix} [!] Skipping recipient with no email address`);
                 continue;
             }
 
-            // Setup the email object
-            const email = {
-                from: sender?.from || process.env.EMAIL_FROM,
-                to: reciever.email,
-                subject: context?.subject,
-                text: 'There is no email body',
-                html: emailTemplate
-            };
-
             try {
-                console.log("[+] SENDING EMAIL To: ", reciever.email);
-                // Send it using the transporter
-                await transporter.sendMail(email);
+                await emailProvider.send({
+                    to: reciever.email,
+                    subject: context.subject,
+                    html: emailBody,
+                    text: 'This email contains HTML content.', // Could be improved if template has text version
+                    trace_id: trace_id
+                });
                 successCount++;
-            }
-            catch(err) {
-                console.log(`[-] FAILED TO SEND EMAIL TO ${reciever.email}: ${err.message}`);
+            } catch (err) {
+                console.log(`${logPrefix} [-] FAILED TO SEND EMAIL TO ${reciever.email}: ${err.message}`);
                 failCount++;
-                // Continue to next recipient instead of returning
             }
         }
 
-        console.log(`[+] EMAILS SENT: ${successCount} SUCCESS, ${failCount} FAILED OUT OF ${recievers.length} CONTACTS`);
-        
-        // Only acknowledge the message once at the end
+        console.log(`${logPrefix} [+] EMAILS SENT: ${successCount} SUCCESS, ${failCount} FAILED OUT OF ${recievers.length} CONTACTS`);
+
+        // 6. Update Idempotency Status
+        if (event_id) {
+            await idempotencyService.updateStatus(event_id, CHANNEL, successCount > 0 ? "sent" : "failed");
+        }
+
         channel.ack(msg);
-    }
-    catch(err) {
-        console.log(`[+] ERROR WHILE HANDLING EVENT: ${err.message}`);
-        
-        // For unexpected errors, we need to decide whether to requeue or not
-        // If it's a transient error (like network issues), we might want to retry
-        // If it's a permanent error (like malformed data), we should not retry
-        
-        // For now, acknowledging to prevent reprocessing after restart
-        // Consider using nack with requeue=false for permanent errors
+    } catch (err) {
+        console.log(`${logPrefix} [+] ERROR WHILE HANDLING EVENT: ${err.message}`);
+        // If critical error, maybe don't ack to requeue? For now adhering to existing pattern of acking.
         channel.ack(msg);
     }
 }
 
-
 async function main() {
-    // use this when running in isolation from main app.
-    // await connectDb();
-
-
     // consume events
     await mqbroker.consume("notification", "notification.email", emailNotificationHandler, "emailOnlyNotificationsQueue");
 }
 
-
-module.exports = main;
+module.exports = { main, emailNotificationHandler };

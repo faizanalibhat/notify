@@ -27,7 +27,14 @@ async function notificationHandler(payload, msg, channel) {
         // publish to channels with recievers resolved.
         for (let channel of channels) {
             console.log("[+] SENDING EMAIL EVENT FOR EMAIL ", recieversList);
-            await mqbroker.publish("notification", `notification.${channel}`, { ...payload, recievers: recieversList });
+            await mqbroker.publish("notification", `notification.${channel}`, {
+                ...payload,
+                recievers: recieversList,
+                // Ensure these are explicitly passed if they exist in payload
+                event_id: payload.event_id,
+                trace_id: payload.trace_id,
+                template_id: payload.template_id
+            });
         }
 
         if (store && Object.keys(notification || {})?.length) {
