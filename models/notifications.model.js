@@ -27,6 +27,8 @@ const notificationSchema = new mongoose.Schema({
     seenBy: { type: [String], default: [] },
     resourceUrl: { type: String },
     createdBy: { type: userSchema },
+    event_key: { type: String },
+    ui_context: { type: mongoose.Schema.Types.Mixed },
     resourceMeta: { type: resourceMeta },
     sentTo: { type: [mongoose.Schema.Types.Mixed], default: [] },
 }, { timestamps: true, strict: false });

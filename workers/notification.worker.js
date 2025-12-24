@@ -56,6 +56,8 @@ async function notificationHandler(payload, msg, channel) {
             let obj = {
                 orgId,
                 ...notification,
+                event_key: payload.event_key,
+                ui_context: payload.ui_context,
                 title_html,
                 ...(user ? { createdBy: user } : {}),
                 sentTo: recieversList
