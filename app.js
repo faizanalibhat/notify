@@ -12,6 +12,7 @@ const { authenticateService } = require("./middlewares/auth");
 const emailWorker = require("./workers/email/email.worker");
 const activityWorker = require("./workers/activity/worker");
 const notificationWorker = require("./workers/notification.worker");
+const { startCleanupWorker: activityCleanupWorker } = require("./workers/activity/cleanup.worker");
 
 
 const app = express();
@@ -38,6 +39,7 @@ mongoose.connect(process.env.NOTIFY_MONGODB_URL)
 emailWorker();
 activityWorker();
 notificationWorker();
+activityCleanupWorker();
 
 
 app.use(errorHandler);
