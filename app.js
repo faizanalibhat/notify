@@ -14,7 +14,7 @@ const notificationWorker = require("./workers/notification.worker");
 
 const app = express();
 
-app.use(cors());
+// app.use(cors());
 app.use(
   cors({
     origin: true,

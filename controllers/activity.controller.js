@@ -13,6 +13,8 @@ const getAllActivity = catchError(async (req, res) => {
         "endpoint": { attribute: "raw.originalUrl", isRegex: true },
         "ip": { attribute: "raw.ip", isRegex: true },
         "user": { attribute: "user.name", isRegex: true },
+        "actionType": { attribute: "resourceMeta.actionType", isRegex: false },
+        "method": { attribute: "raw.method", isRegex: false },
     };
 
     const filter = {};
@@ -43,15 +45,15 @@ const getAllActivity = catchError(async (req, res) => {
     }
 
     if (email) {
-      const emails = email.split(",").map((e) => e.trim());
+        const emails = email.split(",").map((e) => e.trim());
 
-      if (emails.length > 1) {
-        // multiple emails → use $in
-        filter["user.email"] = { $in: emails };
-      } else {
-        // single email → direct match
-        filter["user.email"] = emails[0];
-      }
+        if (emails.length > 1) {
+            // multiple emails → use $in
+            filter["user.email"] = { $in: emails };
+        } else {
+            // single email → direct match
+            filter["user.email"] = emails[0];
+        }
     }
 
     const activity = await activityService.getAllActivity(orgId, filter, page, limit, sortBy, sortAs);

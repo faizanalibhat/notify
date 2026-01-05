@@ -10,7 +10,7 @@ function globalValidator(context = {}) {
             return false;
         }
     }
-    
+
     return true;
 }
 
@@ -23,7 +23,7 @@ const validators = {
 const getValidatorForTemplate = (slug) => {
     let validator = validators[slug];
 
-    return validator;
+    return validator || (() => true);
 }
 
 module.exports = { getValidatorForTemplate };

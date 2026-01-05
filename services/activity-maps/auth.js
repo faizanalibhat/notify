@@ -14,46 +14,46 @@ module.exports = {
     [`${AUTH_BASE_PATH}/auth/reset/validate-token`]: { 'POST': 'Validated reset token' },
     [`${AUTH_BASE_PATH}/auth/reset-password`]: { 'POST': 'Reset password' },
     [`${AUTH_BASE_PATH}/auth/profile`]: {
-        'GET': 'Viewed profile',
-        'PUT': 'Updated profile'
+        // 'GET': 'Viewed profile',
+        // 'PUT': 'Updated profile'
     },
     [`${AUTH_BASE_PATH}/auth/change-password`]: { 'POST': 'Changed password' },
     [`${AUTH_BASE_PATH}/auth/change-email`]: { 'POST': 'Changed email' },
     [`${AUTH_BASE_PATH}/auth/account`]: { 'DELETE': 'Deleted account' },
     [`${AUTH_BASE_PATH}/auth/deactivate`]: { 'POST': 'Deactivated account' },
-    [`${AUTH_BASE_PATH}/auth/notifications`]: { 'GET': 'Viewed notifications' },
-    [`${AUTH_BASE_PATH}/auth/activity`]: { 'GET': 'Viewed activity log' },
-    [`${AUTH_BASE_PATH}/auth/loadDemoData`]: { 'GET': 'Loaded demo data' },
-    [`${AUTH_BASE_PATH}/auth/removeDemoData`]: { 'GET': 'Removed demo data' },
-    [`${AUTH_BASE_PATH}/auth/checkInvite/[^/]+`]: { 'GET': 'Checked invite validity' },
-    [`${AUTH_BASE_PATH}/auth/user/[^/]+`]: { 'GET': 'Viewed user details' },
+    // [`${AUTH_BASE_PATH}/auth/notifications`]: { 'GET': 'Viewed notifications' },
+    // [`${AUTH_BASE_PATH}/auth/activity`]: { 'GET': 'Viewed activity log' },
+    // [`${AUTH_BASE_PATH}/auth/loadDemoData`]: { 'GET': 'Loaded demo data' },
+    // [`${AUTH_BASE_PATH}/auth/removeDemoData`]: { 'GET': 'Removed demo data' },
+    // [`${AUTH_BASE_PATH}/auth/checkInvite/[^/]+`]: { 'GET': 'Checked invite validity' },
+    // [`${AUTH_BASE_PATH}/auth/user/[^/]+`]: { 'GET': 'Viewed user details' },
     [`${AUTH_BASE_PATH}/auth/update-role/[^/]+`]: { 'POST': 'Updated user role' },
     [`${AUTH_BASE_PATH}/auth/update-team/[^/]+`]: { 'POST': 'Updated user team' },
-    [`${AUTH_BASE_PATH}/auth/unlock-inactive`]: { 'POST': 'Unlocked inactive accounts' },
-    [`${AUTH_BASE_PATH}/auth/user-by-email/[^/]+`]: { 'GET': 'Viewed user by email' },
-    [`${AUTH_BASE_PATH}/auth/join`]: {
-        'GET': 'Checked join link',
-        'POST': 'Registered with join link'
-    },
+    // [`${AUTH_BASE_PATH}/auth/unlock-inactive`]: { 'POST': 'Unlocked inactive accounts' },
+    // [`${AUTH_BASE_PATH}/auth/user-by-email/[^/]+`]: { 'GET': 'Viewed user by email' },
+    // [`${AUTH_BASE_PATH}/auth/join`]: {
+    //     'GET': 'Checked join link',
+    //     'POST': 'Registered with join link'
+    // },
     [`${AUTH_BASE_PATH}/auth/join/[^/]+`]: { 'GET': 'Checked join link token' },
     [`${AUTH_BASE_PATH}/auth/approval-status`]: { 'POST': 'Checked approval status' },
     [`${AUTH_BASE_PATH}/auth/profile-picture`]: {
-        'GET': 'Viewed profile picture',
+        // 'GET': 'Viewed profile picture',
         'POST': 'Uploaded profile picture'
     },
-    [`${AUTH_BASE_PATH}/auth/users-by-emails`]: { 'GET': 'Viewed users by emails' },
+    // [`${AUTH_BASE_PATH}/auth/users-by-emails`]: { 'GET': 'Viewed users by emails' },
 
     // Org Routes
-    [`${AUTH_BASE_PATH}/org/check`]: { 'GET': 'Checked login status' },
-    [`${AUTH_BASE_PATH}/org/apikey/validate`]: { 'GET': 'Validated API key' },
+    // [`${AUTH_BASE_PATH}/org/check`]: { 'GET': 'Checked login status' },
+    // [`${AUTH_BASE_PATH}/org/apikey/validate`]: { 'GET': 'Validated API key' },
     [`${AUTH_BASE_PATH}/org`]: {
         'GET': 'Viewed organization details',
-        'POST': 'Created organization',
-        'PUT': 'Updated organization'
+        // 'POST': 'Created organization',
+        // 'PUT': 'Updated organization'
     },
     [`${AUTH_BASE_PATH}/org/rotateKey`]: { 'GET': 'Rotated API key' },
-    [`${AUTH_BASE_PATH}/org/internal/connect`]: { 'POST': 'Stored internal connector' },
-    [`${AUTH_BASE_PATH}/org/internal/store`]: { 'POST': 'Stored scan data' },
+    // [`${AUTH_BASE_PATH}/org/internal/connect`]: { 'POST': 'Stored internal connector' },
+    // [`${AUTH_BASE_PATH}/org/internal/store`]: { 'POST': 'Stored scan data' },
     [`${AUTH_BASE_PATH}/org/[^/]+/admins-supers`]: { 'GET': 'Listed admins and supers' },
     [`${AUTH_BASE_PATH}/org/members`]: { 'GET': 'Listed organization members' },
     [`${AUTH_BASE_PATH}/org/members/[^/]+`]: { 'DELETE': 'Removed member' },
@@ -68,10 +68,10 @@ module.exports = {
     [`${AUTH_BASE_PATH}/org/asset-detail`]: { 'GET': 'Viewed asset detail' },
     [`${AUTH_BASE_PATH}/org/asset-detail/[^/]+`]: { 'GET': 'Viewed asset detail for org' },
     [`${AUTH_BASE_PATH}/org/admin`]: { 'GET': 'Listed all organizations' },
-    [`${AUTH_BASE_PATH}/org/access-request`]: { 'POST': 'Requested organization access' },
+    // [`${AUTH_BASE_PATH}/org/access-request`]: { 'POST': 'Requested organization access' },
     [`${AUTH_BASE_PATH}/org/join-link`]: {
         'POST': 'Created join link',
-        'GET': 'Viewed join link'
+        // 'GET': 'Viewed join link'
     },
     [`${AUTH_BASE_PATH}/org/join-link/refresh`]: { 'POST': 'Refreshed join link' },
     [`${AUTH_BASE_PATH}/org/join-link/disable`]: { 'POST': 'Disabled join link' },

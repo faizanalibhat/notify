@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" href="public/images/logo.svg" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+    <script src="https://kit.fontawesome.com/ac1e998d8e.js" crossorigin="anonymous"></script>
+    <title>Snapsec - Your Security, Centralized</title>
+</head>
+
+<body style="background: #192132; margin: 20px; padding: 0; font-family: 'Poppins', sans-serif; color: #a3adc2;">
+    <table align="center" cellpadding="0" cellspacing="0" style="width: 100%; max-width: 619px; border-radius: 10px; border: 2px solid transparent; background-color: #26334d; box-shadow: 0 0 #0000, 0 0 #0000, 0 0 #0000; color: #a3adc2; margin: 0 auto; padding: 20px 30px;">
+        <tr>
+            <td align="center" style="text-align: center; margin-top: 20px;">
+                <img src="https://snapsec.co/logos/blue-medium.png" alt="Snapsec Logo" style="width: 60px;">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3 style="text-align: center; margin: 10px; font-size: 32px; font-weight: 500; color: rgb(232, 231, 231);">{{heading}}</h3>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table align="center" style="margin: 0 auto;">
+                    <tr style="line-height:normal;">
+                        <td style="padding-right:8px;">
+                            <img width="20" height="20" src="https://robohash.org/{{email}}" alt="" style="border-radius: 50%;">
+                        </td>
+                        <td>
+                            <a href="mailto:{{email}}" style="font-size: 14px; line-height: 20px; color: rgb(232, 231, 231); text-decoration: none;">
+                                {{email}}
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <hr style="border: 1px solid #3561F64D; background: #3561F64D; margin: 30px auto; width: 100%;">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p style="font-size: 15px; line-height: 24px; text-align: center; word-spacing: 2px; font-weight: 500; color: rgb(232, 231, 231); margin-top: 30px;">
+                {{{body}}}
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td align="center" style="text-align: center; margin-top: 50px;">
+                <a href="https://{{base_url}}/auth/login" style="line-height: 16px; color: #ffffff; font-weight: 400; text-decoration: none; font-size: 14px; display: inline-block; padding: 10px 24px; background-color: #4184f3; border-radius: 5px; min-width: 90px;">Go to Snapsec Suite</a>
+            </td>
+        </tr>
+        <tr>
+            <td style="font-size: 13px; text-align: center; margin-top: 40px;">
+                <p style="font-size: 13px; text-align: center; margin-top: 40px;">You can also see security activity at</p>
+            </td>
+        </tr>
+        <tr>
+            <td align="center" style="font-size: 12px; font-weight: 500; line-height: 16.94px; color: #fefefe; text-align: center;">
+                <a href="https://{{base_url}}/auth/login" style="color:#4184f3;font-size: 10px; text-decoration: none;">https://{{base_url}}/csm/notifications</a>
+            </td>
+        </tr>
+    </table>
+    <p style="font-size: 12px; text-align: center; margin: 20px auto; font-family: 'Poppins', sans-serif;">
+        You received this email to let you know about important changes to your Suite Account and services.
+    </p>
+</body>
+
+</html>

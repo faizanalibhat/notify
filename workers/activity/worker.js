@@ -1,6 +1,7 @@
 const { mqbroker } = require("../../services/rabbitmq.service");
 const { connectDb } = require("../../models/connectDb");
 const activityService = require("../../services/activity.service");
+const ActivityLog = require("../../models/activityLog.model");
 
 
 function getClientIp(req) {
@@ -35,9 +36,19 @@ function normalizeIp(ip) {
 
 async function activityLogsHandler(payload, msg, channel) {
 
-  console.log("[+] GOT ACTIVITY ", payload.origin, payload.method, payload.path);
+  // const routingKey = msg.fields.routingKey;
+
+  // // Prevent processing our own emitted events
+  // if (routingKey === "activitylogs.siem.push") {
+  //   return channel.ack(msg);
+  // }
 
   try {
+    // Store raw activity log regardless of type or validity
+    await ActivityLog.create({ payload }).catch(err =>
+      console.error("[!] Failed to store raw activity log:", err.message)
+    );
+
     const {
       type = "access",
       headers = {},
@@ -50,15 +61,25 @@ async function activityLogsHandler(payload, msg, channel) {
       path,
       originalUrl,
       ip,
+      resourceMeta,
     } = payload;
 
     const { orgId, firstName = "", lastName = "", email = "" } = authContext;
 
 
-    const endpoint = originalUrl?.split("?")[0] || path;
-    const action = activityService.parseActivity(endpoint, method);
+    let endpoint = originalUrl?.split("?")[0] || path;
 
-    console.log("[+] ACTIVITY LOG RECEIVED ", origin, method, path);
+    // FIX: Normalize endpoint for VM service
+    if (origin === "vm") {
+      endpoint = endpoint.replace(/\/\/+/g, "/");
+      if (!endpoint.startsWith("/vm") && !endpoint.startsWith("/csm")) {
+        endpoint = `/vm${endpoint}`;
+      }
+    }
+
+    console.log("[+] GOT ACTIVITY ", origin, method, endpoint);
+
+    const action = activityService.parseActivity(endpoint, method);
 
     // throw this log to be pushed to siem
     await mqbroker.publish("activitylogs", "activitylogs.siem.push", { action, type: payload.type || "access", ...payload });
@@ -68,8 +89,8 @@ async function activityLogsHandler(payload, msg, channel) {
     }
 
     if (!orgId) {
-        console.warn("[!] Skipping activity log: missing orgId");
-        return channel.ack(msg);
+      console.warn("[!] Skipping activity log: missing orgId");
+      return channel.ack(msg);
     }
 
     const saveHeaders = {
@@ -95,6 +116,7 @@ async function activityLogsHandler(payload, msg, channel) {
         method,
       },
       origin,
+      resourceMeta: resourceMeta || {},
     };
 
     const created = await activityService.createActivity(orgId, activity);
@@ -116,12 +138,12 @@ async function activityLogsHandler(payload, msg, channel) {
 
 
 async function main() {
-    // use this when running in isolation from main app.
-    // await connectDb();
+  // use this when running in isolation from main app.
+  // await connectDb();
 
 
-    // consume events
-    await mqbroker.consume("activitylogs", "activitylogs.all", activityLogsHandler, "activityLogsQueue");
+  // consume events
+  await mqbroker.consume("activitylogs", "activitylogs.all", activityLogsHandler, "activityLogsQueue");
 }
 
 

@@ -17,7 +17,8 @@ module.exports = {
     [`${VM_BASE_PATH}/assessments/assessmentReview`]: { 'POST': 'Locked assessment for review' },
     [`${VM_BASE_PATH}/assessments/lock/[^/]+`]: { 'POST': 'Locked an assessment' },
     [`${VM_BASE_PATH}/assessments/assessmentApprove`]: { 'POST': 'Approved an assessment' },
-    [`${VM_BASE_PATH}/assessments/collaborators/add`]: { 'POST': 'Added collaborator to assessment' },
+    [`${VM_BASE_PATH}/assessments/[^/]+/collaborators/add`]: { 'POST': 'Added collaborator to assessment' },
+    [`${VM_BASE_PATH}/assessments/[^/]+/collaborators/remove`]: { 'POST': 'Removed collaborator from assessment' },
     [`${VM_BASE_PATH}/assessments/report/generate-report/[^/]+`]: {
         'POST': 'Generated assessment report',
         'GET': 'Generated assessment data'
@@ -45,6 +46,9 @@ module.exports = {
         'GET': 'Viewed an assessment',
         'PUT': 'Updated an assessment',
         'DELETE': 'Deleted an assessment'
+    },
+    [`/csm/api/assessments/[^/]+`]: {
+        'PUT': 'Updated an assessment'
     },
 
     // Vulnerabilities
@@ -208,5 +212,24 @@ module.exports = {
 
     // Imports
     [`${VM_BASE_PATH}/import/vulns/[^/]+`]: { 'POST': 'Imported vulns' },
-    [`${VM_BASE_PATH}/import/[^/]+/[^/]+`]: { 'POST': 'Imported vulnerabilities' }
+    [`${VM_BASE_PATH}/import/[^/]+/[^/]+`]: { 'POST': 'Imported vulnerabilities' },
+
+    // SLA Monitor
+    [`${VM_BASE_PATH}/sla-cron/monitor`]: { 'POST': 'Triggered SLA monitoring' },
+    [`${VM_BASE_PATH}/sla-cron/report`]: { 'POST': 'Triggered weekly SLA report' },
+    [`${VM_BASE_PATH}/sla-cron/run-all`]: { 'POST': 'Triggered full SLA cron job' },
+
+    // Demo Data
+    [`${VM_BASE_PATH}/demo-data/generate`]: { 'POST': 'Generated demo data' },
+
+    // Admin & Internal
+    // [`/vm/admin/run-asset-cron`]: { 'GET': 'Manually triggered asset stats update' },
+    // [`/vm/admin/run-assessment-cron`]: { 'GET': 'Manually triggered assessment stats update' },
+    // [`${VM_BASE_PATH}/internal/run-asset-cron`]: { 'POST': 'Manually triggered asset stats update (Internal)' },
+    // [`${VM_BASE_PATH}/internal/run-assessment-cron`]: { 'POST': 'Manually triggered assessment stats update (Internal)' },
+    // [`/vm/status`]: { 'GET': 'Checked VM service status' },
+
+    // Downloads
+    [`/vm/uploads/[^/]+`]: { 'GET': 'Downloaded file' },
+
 };

@@ -1,4 +1,5 @@
 const notificationService = require("../services/notification.service");
+const crypto = require("crypto");
 
 
 const getPeriodStartDate = (period) => {
@@ -36,7 +37,8 @@ const getAllNotifications = async (req, res) => {
 
     if (origin && origin != "all") filter.origin = origin;
 
-    filter['createdBy.email'] = { $ne: email };
+    // prevent notifications from current user
+    // filter['createdBy.email'] = { $ne: email };
 
     if (seen) filter.seen = seen == 'true';
 
@@ -113,4 +115,68 @@ const markAllAsSeen = async (req, res) => {
 
 
 
-module.exports = { getAllNotifications, markNotificationSeen, markAllAsSeen };
+const { mqbroker } = require("../services/rabbitmq.service");
+
+const testEmailNotification = async (req, res) => {
+    try {
+        const { email, template_id, event_id } = req.body; // Allow manual event_id
+
+        // Auto-seed template if missing (to ensure test works in all environments)
+        const Template = require("../models/templates.model");
+        const targetSlug = template_id || "VM_REPORT_CREATED";
+        const exists = await Template.findOne({ slug: targetSlug });
+
+        if (!exists) {
+            await Template.create({
+                slug: targetSlug,
+                type: "email",
+                raw: "<h1>New VM Report</h1><p>User: {{user_name}}</p><p>Subject: {{subject}}</p>",
+                orgId: "test-org",
+                status: "active"
+            });
+            console.log(`[Test] Auto-seeded template: ${targetSlug}`);
+        }
+
+        // Canonical payload structure
+        const payload = {
+            event_id: event_id || crypto.randomUUID(),
+            trace_id: "test-trace-" + Date.now(),
+            slug: "global",
+            store: false,
+            orgId: "test-org",
+            channels: ["email"],
+            template_id: targetSlug,
+            notification: {
+                origin: "test",
+                resourceMeta: { resource: "test" }
+            },
+            context: {
+                user_name: "Test User",
+                subject: "Test Notification",
+                title: "Test Title",
+                description: "This is a test notification",
+                timestamp: new Date().toISOString()
+            },
+            recievers: [{ email: email || "test@example.com" }],
+            authContext: {
+                user_id: "test-user-id",
+                email: email || "test@example.com",
+                locale: "en"
+            }
+        };
+
+        await mqbroker.publish("notification", "notification.email", payload);
+
+        return res.json({
+            success: true,
+            message: "Test event published (template verified/seeded)",
+            event_id: payload.event_id,
+            trace_id: payload.trace_id,
+            template_id: targetSlug
+        });
+    } catch (err) {
+        return res.status(500).json({ success: false, error: err.message });
+    }
+}
+
+module.exports = { getAllNotifications, markNotificationSeen, markAllAsSeen, testEmailNotification };
