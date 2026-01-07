@@ -3,12 +3,9 @@ const fs = require("fs/promises");
 const path = require("path");
 const templateService = require("../../services/template.service");
 const { connectDb } = require("../../models/connectDb");
-const transport = require("../../channels/email/index");
+const mailersendProvider = require("../../channels/email/mailersend.provider");
 const { renderTemplate } = require("../../services/render.service");
 const { getValidatorForTemplate } = require("../../services/validator.service");
-
-
-const transporter = transport();
 
 
 async function emailNotificationHandler(payload, msg, channel) {
@@ -50,6 +47,9 @@ async function emailNotificationHandler(payload, msg, channel) {
         let successCount = 0;
         let failCount = 0;
 
+        // Generate a trace ID for this batch
+        const batchTraceId = `batch-${Date.now()}`;
+
         // Process emails one by one
         for (let reciever of recievers) {
             if (!reciever.email) {
@@ -57,19 +57,17 @@ async function emailNotificationHandler(payload, msg, channel) {
                 continue;
             }
 
-            // Setup the email object
-            const email = {
-                from: sender?.from || process.env.EMAIL_FROM,
-                to: reciever.email,
-                subject: context?.subject,
-                text: 'There is no email body',
-                html: emailTemplate
-            };
-
             try {
                 console.log("[+] SENDING EMAIL To: ", reciever.email);
-                // Send it using the transporter
-                await transporter.sendMail(email);
+                // Send it using MailerSend provider
+                await mailersendProvider.send({
+                    to: reciever.email,
+                    subject: context?.subject,
+                    html: emailTemplate,
+                    from: sender?.from || process.env.EMAIL_FROM,
+                    fromName: sender?.fromName || process.env.EMAIL_FROM_NAME,
+                    trace_id: `${batchTraceId}-${reciever.email}`
+                });
                 successCount++;
             }
             catch(err) {
