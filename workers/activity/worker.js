@@ -3,7 +3,6 @@ const { connectDb } = require("../../models/connectDb");
 const activityService = require("../../services/activity.service");
 const ActivityLog = require("../../models/activityLog.model");
 
-
 function getClientIp(req) {
   // Prefer X-Forwarded-For (can contain multiple IPs, take the first)
   let ip =
@@ -25,7 +24,6 @@ function getClientIp(req) {
   return ip;
 }
 
-
 // helper to normalize IPs
 function normalizeIp(ip) {
   if (!ip) return null;
@@ -35,7 +33,6 @@ function normalizeIp(ip) {
 }
 
 async function activityLogsHandler(payload, msg, channel) {
-
   // const routingKey = msg.fields.routingKey;
 
   // // Prevent processing our own emitted events
@@ -45,8 +42,8 @@ async function activityLogsHandler(payload, msg, channel) {
 
   try {
     // Store raw activity log regardless of type or validity
-    await ActivityLog.create({ payload }).catch(err =>
-      console.error("[!] Failed to store raw activity log:", err.message)
+    await ActivityLog.create({ payload }).catch((err) =>
+      console.error("[!] Failed to store raw activity log:", err.message),
     );
 
     const {
@@ -66,7 +63,6 @@ async function activityLogsHandler(payload, msg, channel) {
 
     const { orgId, firstName = "", lastName = "", email = "" } = authContext;
 
-
     let endpoint = originalUrl?.split("?")[0] || path;
 
     // FIX: Normalize endpoint for VM service
@@ -82,7 +78,11 @@ async function activityLogsHandler(payload, msg, channel) {
     const action = activityService.parseActivity(endpoint, method);
 
     // throw this log to be pushed to siem
-    await mqbroker.publish("activitylogs", "activitylogs.siem.push", { action, type: payload.type || "access", ...payload });
+    await mqbroker.publish("activitylogs", "activitylogs.siem.push", {
+      action,
+      type: payload.type || "access",
+      ...payload,
+    });
 
     if (type != "access" || !action) {
       return channel.ack(msg);
@@ -97,6 +97,21 @@ async function activityLogsHandler(payload, msg, channel) {
       "user-agent": headers["user-agent"] || null,
       host: headers["host"] || null,
     };
+
+    // action type based on method
+    let action_type = "";
+
+    if (method === "POST") {
+      action_type = "create";
+    } else if (method === "PUT") {
+      action_type = "update";
+    } else if (method === "DELETE") {
+      action_type = "delete";
+    } else if (method === "PATCH") {
+      action_type = "update";
+    } else if (method === "GET") {
+      action_type = "read";
+    }
 
     const activity = {
       type: payload.type,
@@ -116,7 +131,7 @@ async function activityLogsHandler(payload, msg, channel) {
         method,
       },
       origin,
-      resourceMeta: resourceMeta || {},
+      resourceMeta: resourceMeta || { actionType: action_type },
     };
 
     const created = await activityService.createActivity(orgId, activity);
@@ -135,16 +150,17 @@ async function activityLogsHandler(payload, msg, channel) {
   }
 }
 
-
-
 async function main() {
   // use this when running in isolation from main app.
   // await connectDb();
 
-
   // consume events
-  await mqbroker.consume("activitylogs", "activitylogs.all", activityLogsHandler, "activityLogsQueue");
+  await mqbroker.consume(
+    "activitylogs",
+    "activitylogs.all",
+    activityLogsHandler,
+    "activityLogsQueue",
+  );
 }
-
 
 module.exports = main;
