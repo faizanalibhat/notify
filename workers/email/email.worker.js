@@ -10,40 +10,57 @@ const { getValidatorForTemplate } = require("../../services/validator.service");
 
 async function emailNotificationHandler(payload, msg, channel) {
     try {
-        const { slug, context, recievers, sender, notification } = payload;
+        const { slug, context, recievers, sender, notification, title_html, html } = payload;
 
         // Validate payload
-        if (!slug || !recievers || !Array.isArray(recievers)) {
+        if (!recievers || !Array.isArray(recievers)) {
             console.log("[!] Invalid payload structure, missing required fields");
             channel.ack(msg); // Acknowledge invalid messages to prevent reprocessing
             return;
         }
 
-        const template = await templateService.getTemplateBySlug(slug);
+        let emailTemplate;
+        let emailSubject = context?.subject;
 
-        if (template.status === "failed") {
-            console.log("[+] SLUG DOES NOT MATCH ANY TEMPLATE");
-            channel.ack(msg); // Acknowledge as this isn't recoverable
-            return;
+        // Check if pre-rendered HTML is provided (bypass template rendering)
+        if (html || title_html) {
+            emailTemplate = html || title_html;
+            console.log("[+] Using pre-rendered HTML content from payload");
+        } else {
+            // Use template-based rendering
+            if (!slug) {
+                console.log("[!] No slug provided and no pre-rendered HTML, skipping email");
+                channel.ack(msg);
+                return;
+            }
+
+            const template = await templateService.getTemplateBySlug(slug);
+
+            if (template.status === "failed") {
+                console.log("[+] SLUG DOES NOT MATCH ANY TEMPLATE");
+                channel.ack(msg); // Acknowledge as this isn't recoverable
+                return;
+            }
+            
+            if (!context) {
+                console.log("[+] CONTEXT MISSING, SKIPPING EMAIL");
+                channel.ack(msg);
+                return;
+            }
+
+            const isValid = getValidatorForTemplate(slug);
+
+            if (isValid && !isValid(context)) {
+                await fs.writeFile(path.resolve("logs"), `[+] RECIEVED INCOMPLETE CONTEXT FOR EMAIL - RECIEVER : ${recievers[0]?.email} - ORIGIN : ${notification?.origin} - RESOURCE : ${notification?.resourceMeta?.resource}`);
+
+                console.log("[+] GIVEN CONTEXT HAS MISSING INFO");
+                return channel.ack(msg);
+            }
+
+            const { raw } = template;
+            emailTemplate = renderTemplate(raw, context);
         }
-        
-        if (!context) {
-            console.log("[+] CONTEXT MISSING, SKIPPING EMAIL");
-            channel.ack(msg);
-            return;
-        }
 
-        const isValid = getValidatorForTemplate(slug);
-
-        if (!isValid(context)) {
-            await fs.writeFile(path.resolve("logs"), `[+] RECIEVED INCOMPLETE CONTEXT FOR EMAIL - RECIEVER : ${reciever.email} - ORIGIN : ${notification.origin} - RESOURCE : ${notification?.resourceMeta?.resource}`);
-
-            console.log("[+] GIVEN CONTEXT HAS MISSING INFO");
-            return channel.ack(msg);
-        }
-
-        const { raw } = template;
-        const emailTemplate = renderTemplate(raw, context);
         let successCount = 0;
         let failCount = 0;
 
@@ -62,7 +79,7 @@ async function emailNotificationHandler(payload, msg, channel) {
                 // Send it using MailerSend provider
                 await mailersendProvider.send({
                     to: reciever.email,
-                    subject: context?.subject,
+                    subject: emailSubject || context?.subject || notification?.title || "Notification",
                     html: emailTemplate,
                     from: sender?.from || process.env.EMAIL_FROM,
                     fromName: sender?.fromName || process.env.EMAIL_FROM_NAME,
