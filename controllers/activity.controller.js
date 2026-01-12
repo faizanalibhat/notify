@@ -87,7 +87,7 @@ const getOrgActivityWithStats = catchError(async (req, res) => {
 const getAllActivity = catchError(async (req, res) => {
     const { orgId } = req.authenticatedService;
 
-    const { page, limit, sortBy = 'createdAt', sortAs = 'desc', search = '' } = req.query;
+    const { page, limit, sortBy = 'createdAt', sortAs = 'desc', search = '', email } = req.query;
 
     const supportedFilters = {
         "product": { attribute: "origin", isRegex: false },
@@ -95,6 +95,8 @@ const getAllActivity = catchError(async (req, res) => {
         "endpoint": { attribute: "raw.originalUrl", isRegex: true },
         "ip": { attribute: "raw.ip", isRegex: true },
         "user": { attribute: "user.name", isRegex: true },
+        "actionType": { attribute: "resourceMeta.actionType", isRegex: false },
+        "method": { attribute: "raw.method", isRegex: false },
     };
 
     const filter = {};
@@ -122,6 +124,18 @@ const getAllActivity = catchError(async (req, res) => {
             { 'raw.ip': { $regex: search, $options: 'i' } },
             { 'raw.originalUrl': { $regex: search, $options: 'i' } },
         ]
+    }
+
+    if (email) {
+        const emails = email.split(",").map((e) => e.trim());
+
+        if (emails.length > 1) {
+            // multiple emails → use $in
+            filter["user.email"] = { $in: emails };
+        } else {
+            // single email → direct match
+            filter["user.email"] = emails[0];
+        }
     }
 
     const activity = await activityService.getAllActivity(orgId, filter, page, limit, sortBy, sortAs);

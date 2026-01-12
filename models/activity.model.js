@@ -14,7 +14,11 @@ const activitySchema = new mongoose.Schema({
     origin: { type: String, required: true },
     user: { type: userSchema },
     raw: mongoose.Schema.Types.Mixed,
+    resourceMeta: mongoose.Schema.Types.Mixed,
 }, { timestamps: true, strict: false });
+
+
+activitySchema.index({ createdAt: 1 }, { expireAfterSeconds: 2592000 });
 
 
 module.exports = mongoose.model("activity", activitySchema);
