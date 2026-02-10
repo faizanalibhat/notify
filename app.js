@@ -9,6 +9,7 @@ const { authenticateService } = require("./middlewares/auth");
 const emailWorker = require("./workers/email/email.worker");
 const activityWorker = require("./workers/activity/worker");
 const notificationWorker = require("./workers/notification.worker");
+const { startCleanupWorker: activityCleanupWorker } = require("./workers/activity/cleanup.worker");
 
 const connect = require("./database/connect");
 const { Config } = require("./config/env");
@@ -25,6 +26,9 @@ app.use(
 
 app.use(bodyParser.json());
 
+const activityController = require("./controllers/activity.controller");
+app.get("/notify/internal/activity/:orgId", activityController.getOrgActivityWithStats);
+
 app.use("/notify/api", authenticateService(), router);
 
 connect();
@@ -33,6 +37,7 @@ connect();
 emailWorker();
 activityWorker();
 notificationWorker();
+activityCleanupWorker();
 
 app.use(errorHandler);
 
