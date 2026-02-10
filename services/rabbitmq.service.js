@@ -1,4 +1,5 @@
 const amqp = require('amqplib');
+const { buildRabbitmqUrl } = require('../utils/utils');
 
 class RabbitMQ {
     constructor() {
@@ -11,7 +12,7 @@ class RabbitMQ {
             topic: 'topic',
             fanout: 'fanout'
         };
-        this.url = process.env.RABBITMQ_URL;
+        this.url = buildRabbitmqUrl();
         this.connect();
     }
 

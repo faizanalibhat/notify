@@ -1,7 +1,5 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const morgan = require("morgan");
 const { errorHandler } = require("./middlewares/error");
 const router = require("./routes/index");
 const cors = require("cors");
@@ -11,6 +9,9 @@ const { authenticateService } = require("./middlewares/auth");
 const emailWorker = require("./workers/email/email.worker");
 const activityWorker = require("./workers/activity/worker");
 const notificationWorker = require("./workers/notification.worker");
+
+const connect = require("./database/connect");
+const { Config } = require("./config/env");
 
 const app = express();
 
@@ -26,15 +27,7 @@ app.use(bodyParser.json());
 
 app.use("/notify/api", authenticateService(), router);
 
-// connect mongodb
-mongoose
-  .connect(process.env.NOTIFY_MONGODB_URL)
-  .then(() => {
-    console.log("[+] MONGODB CONNECTED");
-  })
-  .catch((err) => {
-    console.log("[-] FAILED TO CONNECT MONGODB ", err.message);
-  });
+connect();
 
 // run the email worker
 emailWorker();
@@ -43,6 +36,8 @@ notificationWorker();
 
 app.use(errorHandler);
 
-app.listen(process.env.NOTIFY_PORT || 80, () => {
-  console.log("[+] SERVER IS RUNNING ON PORT ", process.env.NOTIFY_PORT || 80);
+const PORT = Config.get("NOTIFY_PORT", 80);
+
+app.listen(PORT, () => {
+  console.log("[NOTIFY] SERVER IS RUNNING ON PORT ", PORT);
 });
