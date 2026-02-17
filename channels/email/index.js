@@ -2,12 +2,6 @@ const nodemailer = require('nodemailer');
 const { appConfig } = require('../../config/app.config');
 
 function createTransport(customConfig) {
-    const fromStr = appConfig.EMAIL_FROM || "";
-    const emailMatch = fromStr.match(/<([^>]+)>/);
-    const address = emailMatch ? emailMatch[1] : fromStr.trim();
-    const nameMatch = fromStr.match(/^"([^"]+)"/) || fromStr.match(/^([^<]+)/);
-    const name = nameMatch ? nameMatch[1].trim() : "Snapsec Suite";
-
     const defaultConfig = {
         host: appConfig.SMTP_HOST,
         port: parseInt(appConfig.SMTP_PORT),
@@ -19,7 +13,6 @@ function createTransport(customConfig) {
         tls: {
             rejectUnauthorized: false
         },
-        from: { name, address }
     };
 
     console.log(JSON.stringify(defaultConfig));

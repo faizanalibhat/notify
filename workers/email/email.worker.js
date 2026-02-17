@@ -6,8 +6,8 @@ const { connectDb } = require("../../models/connectDb");
 const { renderTemplate } = require("../../services/render.service");
 const { getValidatorForTemplate } = require("../../services/validator.service");
 const idempotencyService = require("../../services/idempotency.service");
-const emailProvider = require("../../providers/email.provider");
 const transporter = require("../../channels/email/index");
+const { appConfig } = require('../../config/app.config');
 
 // Channel identifier for idempotency
 const CHANNEL = "email";
@@ -89,6 +89,7 @@ async function emailNotificationHandler(payload, msg, channel) {
 
             try {
                 await email_sender.sendMail({
+                    from: appConfig.EMAIL_FROM,
                     to: reciever.email,
                     subject: context.subject,
                     html: emailBody,
