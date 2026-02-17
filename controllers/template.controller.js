@@ -11,10 +11,6 @@ const testTemplateByIdController = catchError(async (req, res) => {
     res.status(200).json({ slug });
 });
 
-
-
-
-
 module.exports = {
   testTemplateByIdController
 };

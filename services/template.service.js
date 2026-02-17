@@ -40,7 +40,7 @@ const testTemplateById = async (orgId, id, context, recievers) => {
 
     await mqbroker.publish("notification", "notification.email", payload);
 
-    return slug;
+    return id;
 }
 
 
