@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const { mqbroker } = require("../services/rabbitmq.service");
-const { ApiError } = require("../utils/ApiError");
-const { ObjectId } = require("mongoose").Types;
 const fileTemplates = require("../templates/map");
 
 

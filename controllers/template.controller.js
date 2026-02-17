@@ -16,10 +16,5 @@ const testTemplateByIdController = catchError(async (req, res) => {
 
 
 module.exports = {
-  createTemplateController,
-  getAllTemplatesController,
-  getTemplateByIdController,
-  updateTemplateByIdController,
-  deleteTemplateByIdController,
   testTemplateByIdController
 };
