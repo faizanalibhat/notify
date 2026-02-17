@@ -78,6 +78,8 @@ async function emailNotificationHandler(payload, msg, channel) {
         let successCount = 0;
         let failCount = 0;
 
+        const email_sender = transporter();
+
         // 5. Send Emails
         for (let reciever of recievers) {
             if (!reciever.email) {
@@ -86,8 +88,6 @@ async function emailNotificationHandler(payload, msg, channel) {
             }
 
             try {
-                const email_sender = transporter();
-
                 await email_sender.sendMail({
                     to: reciever.email,
                     subject: context.subject,
