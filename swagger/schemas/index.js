@@ -1,0 +1,9 @@
+module.exports = {
+    GenericResponse: {
+        type: 'object',
+        properties: {
+            success: { type: 'boolean' },
+            data: { type: 'object' }
+        }
+    }
+}

@@ -4,6 +4,8 @@ const { errorHandler } = require("./middlewares/error");
 const router = require("./routes/index");
 const cors = require("cors");
 const { authenticateService } = require("./middlewares/auth");
+const initSwagger = require("./swagger");
+
 
 // workers
 const emailWorker = require("./workers/email/email.worker");
@@ -25,6 +27,9 @@ app.use(
 );
 
 app.use(bodyParser.json());
+
+initSwagger(app);
+
 
 const activityController = require("./controllers/activity.controller");
 app.get("/notify/internal/activity/:orgId", activityController.getOrgActivityWithStats);
