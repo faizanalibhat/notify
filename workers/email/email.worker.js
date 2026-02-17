@@ -7,6 +7,7 @@ const { renderTemplate } = require("../../services/render.service");
 const { getValidatorForTemplate } = require("../../services/validator.service");
 const idempotencyService = require("../../services/idempotency.service");
 const emailProvider = require("../../providers/email.provider");
+const transporter = require("../../channels/email/index");
 
 // Channel identifier for idempotency
 const CHANNEL = "email";
@@ -17,11 +18,8 @@ async function emailNotificationHandler(payload, msg, channel) {
         event_id,
         trace_id,
         template_id,
-        slug: oldSlug, // Fallback
         context,
         recievers,
-        sender,
-        notification
     } = payload;
 
     const logPrefix = `[${trace_id || 'NO_TRACE'}] [${event_id || 'NO_EVENT'}]`;
@@ -33,8 +31,8 @@ async function emailNotificationHandler(payload, msg, channel) {
             return channel.ack(msg);
         }
 
-        // Use template_id if available, otherwise fallback to slug
-        const templateKey = template_id || oldSlug;
+        // Use template_id if available
+        const templateKey = template_id;
 
         if (!templateKey) {
             console.log(`${logPrefix} [!] Missing template_id (and no slug fallback)`);
@@ -53,7 +51,6 @@ async function emailNotificationHandler(payload, msg, channel) {
         }
 
         // 3. Load Template
-        const locale = payload.authContext?.locale || "en";
         const template = await templateService.getTemplateBySlug(templateKey);
 
         if (!template || template.status === "failed") {
@@ -89,12 +86,12 @@ async function emailNotificationHandler(payload, msg, channel) {
             }
 
             try {
-                await emailProvider.send({
+                const email_sender = transporter();
+
+                await email_sender.sendMail({
                     to: reciever.email,
                     subject: context.subject,
                     html: emailBody,
-                    text: 'This email contains HTML content.', // Could be improved if template has text version
-                    trace_id: trace_id
                 });
                 successCount++;
             } catch (err) {
