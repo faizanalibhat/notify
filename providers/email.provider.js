@@ -1,18 +1,4 @@
 const transporter = require("../channels/email/index")();
-
-/**
- * Interface definition for EmailProvider (Documentation only)
- * interface EmailProvider {
- *   send(payload: {
- *     to: string;
- *     subject: string;
- *     html: string;
- *     text?: string;
- *     trace_id: string;
- *   }): Promise<void>;
- * }
- */
-
 class NodemailerProvider {
     constructor() {
         this.transporter = transporter;

@@ -4,11 +4,15 @@ const { appConfig } = require('../../config/app.config');
 function createTransport(customConfig) {
     const defaultConfig = {
         host: appConfig.SMTP_HOST,
-        port: appConfig.SMTP_PORT,
-        secure: appConfig.SMTP_SECURE == 'true',
+        port: parseInt(appConfig.SMTP_PORT),
+        secure: parseInt(appConfig.SMTP_PORT) === 465, // Use SSL/TLS for port 465, otherwise use STARTTLS
         auth: {
             user: appConfig.SMTP_USER,
             pass: appConfig.SMTP_PASS
+        },
+        tls: {
+            // Do not fail on invalid certs (common for internal SMTP servers)
+            rejectUnauthorized: false
         },
         // default from
         from: appConfig.EMAIL_FROM
