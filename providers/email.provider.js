@@ -6,7 +6,6 @@ class NodemailerProvider {
 
     async send({ to, subject, html, text, trace_id }) {
         const email = {
-            from: process.env.EMAIL_FROM,
             to,
             subject,
             html,
