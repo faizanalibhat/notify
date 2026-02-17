@@ -1,17 +1,20 @@
 const nodemailer = require('nodemailer');
+const { appConfig } = require('../../config/app.config');
 
 function createTransport(customConfig) {
     const defaultConfig = {
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
-        secure: process.env.SMTP_SECURE == 'true',
+        host: appConfig.SMTP_HOST,
+        port: appConfig.SMTP_PORT,
+        secure: appConfig.SMTP_SECURE == 'true',
         auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS
+            user: appConfig.SMTP_USER,
+            pass: appConfig.SMTP_PASS
         },
         // default from
-        from: process.env.EMAIL_FROM
+        from: appConfig.EMAIL_FROM
     };
+
+    console.log(JSON.stringify(defaultConfig));
 
     const transporter = nodemailer.createTransport(customConfig || defaultConfig);
 
