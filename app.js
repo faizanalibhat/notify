@@ -34,6 +34,8 @@ initSwagger(app);
 const activityController = require("./controllers/activity.controller");
 app.get("/notify/internal/activity/:orgId", activityController.getOrgActivityWithStats);
 
+app.use("/notify/test", require("./routes/test.routes"));
+
 app.use("/notify/api", authenticateService(), router);
 
 connect();
