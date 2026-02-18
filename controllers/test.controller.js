@@ -14,14 +14,16 @@ exports.testAllTemplates = async (req, res) => {
                 context: {
                     otp: "123456",
                     name: "John Doe",
-                    year: new Date().getFullYear()
+                    year: new Date().getFullYear(),
+                    subject: "Your Login OTP"
                 }
             },
             {
                 id: "REGISTRATION_OTP",
                 context: {
                     otp: "654321",
-                    year: new Date().getFullYear()
+                    year: new Date().getFullYear(),
+                    subject: "Your Registration OTP"
                 }
             },
             {
@@ -34,7 +36,8 @@ exports.testAllTemplates = async (req, res) => {
                         severity: "Critical"
                     },
                     action_url: "https://suite.snapsec.co/vuln/123",
-                    year: new Date().getFullYear()
+                    year: new Date().getFullYear(),
+                    subject: "New Vulnerability Assigned: VULN-2023-001"
                 }
             },
             {
@@ -49,7 +52,8 @@ exports.testAllTemplates = async (req, res) => {
                     },
                     deadline: "2023-10-25",
                     action_url: "https://suite.snapsec.co/vuln/456",
-                    year: new Date().getFullYear()
+                    year: new Date().getFullYear(),
+                    subject: "SLA BREACH ALERT: VULN-2023-002"
                 }
             },
             {
@@ -61,7 +65,8 @@ exports.testAllTemplates = async (req, res) => {
                         high: 5,
                         medium: 7
                     },
-                    year: new Date().getFullYear()
+                    year: new Date().getFullYear(),
+                    subject: "Weekly Security Digest: 15 Open Issues"
                 }
             },
             {
@@ -73,7 +78,8 @@ exports.testAllTemplates = async (req, res) => {
                         pending: 12,
                         newIssues: 5
                     },
-                    year: new Date().getFullYear()
+                    year: new Date().getFullYear(),
+                    subject: "Weekly Security Progress Report"
                 }
             }
         ];
