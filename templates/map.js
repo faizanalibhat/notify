@@ -34,5 +34,29 @@ module.exports = [
         template_path: "/templates/email/GENERIC_EMAIL.hbs",
         active: true,
         type: "email"
+    },
+    {
+        template_id: "VULN_ASSIGNED_NOTIFICATION",
+        template_path: "/templates/email/VULN_NOTIFICATION.hbs",
+        active: true,
+        type: "email"
+    },
+    {
+        template_id: "WEEKLY_TICKET_REMINDER",
+        template_path: "/templates/email/VULN_NOTIFICATION.hbs",
+        active: true,
+        type: "email"
+    },
+    {
+        template_id: "WEEKLY_LEAD_SUMMARY",
+        template_path: "/templates/email/VULN_NOTIFICATION.hbs",
+        active: true,
+        type: "email"
+    },
+    {
+        template_id: "SLA_BREACH_NOTIFICATION",
+        template_path: "/templates/email/VULN_NOTIFICATION.hbs",
+        active: true,
+        type: "email"
     }
 ];
