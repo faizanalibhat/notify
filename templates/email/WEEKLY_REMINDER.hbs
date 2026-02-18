@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration OTP - SnapSec</title>
+    <title>Weekly Security Reminder - SnapSec</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Base styles for email clients */
@@ -47,10 +47,10 @@
                 max-width: 100% !important;
             }
 
-            .otp-text {
-                font-size: 28px !important;
-                letter-spacing: 0.4em !important;
-                padding-left: 0.4em !important;
+            .stat-cell {
+                display: block !important;
+                width: 100% !important;
+                padding: 10px 0 !important;
             }
         }
     </style>
@@ -66,7 +66,7 @@
 
                 <!-- Main Email Card -->
                 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="mobile-width"
-                    style="max-width: 480px; width: 100%; background-color: #ffffff; border-radius: 24px; border: 1px solid #e5e7eb; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border-collapse: separate;">
+                    style="max-width: 500px; width: 100%; background-color: #ffffff; border-radius: 24px; border: 1px solid #e5e7eb; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border-collapse: separate;">
 
                     <!-- Top Accent Bar -->
                     <tr>
@@ -90,58 +90,95 @@
                             </table>
 
                             <h1
-                                style="color: #111827; font-size: 24px; font-weight: 700; margin: 24px 0 0 0; letter-spacing: -0.02em; line-height: 1.2;">
-                                Verify your email
+                                style="color: #111827; font-size: 22px; font-weight: 700; margin: 24px 0 0 0; letter-spacing: -0.02em; line-height: 1.2;">
+                                Weekly Security Digest
                             </h1>
                             <p style="color: #4b5563; font-size: 15px; margin: 10px 0 0 0; line-height: 1.5;">
-                                Use the code below to complete your registration.
+                                Here is your weekly summary of outstanding tasks.
                             </p>
                         </td>
                     </tr>
 
-                    <!-- OTP Section -->
+                    <!-- Stats Summary Card -->
+                    <tr>
+                        <td style="padding: 0 40px 32px 40px;" class="mobile-padding">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0"
+                                style="background-color: #f9fafb; border-radius: 20px;">
+                                <tr>
+                                    <td align="center" style="padding-top: 20px;">
+                                        <p
+                                            style="margin: 0; color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+                                            Total Open Issues</p>
+                                        <p
+                                            style="margin: 8px 0 0 0; color: #111827; font-size: 48px; font-weight: 800; line-height: 1;">
+                                            {{stats.totalOpen}}</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-bottom: 10px; padding-top: 20px;">
+                                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td class="stat-cell" align="center" width="33%">
+                                                    <p
+                                                        style="margin: 0; color: #ef4444; font-size: 20px; font-weight: 700;">
+                                                        {{stats.critical}}</p>
+                                                    <p
+                                                        style="margin: 2px 0 0 0; color: #64748b; font-size: 11px; font-weight: 500;">
+                                                        Critical</p>
+                                                </td>
+                                                <td class="stat-cell" align="center" width="33%"
+                                                    style="border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
+                                                    <p
+                                                        style="margin: 0; color: #f97316; font-size: 20px; font-weight: 700;">
+                                                        {{stats.high}}</p>
+                                                    <p
+                                                        style="margin: 2px 0 0 0; color: #64748b; font-size: 11px; font-weight: 500;">
+                                                        High</p>
+                                                </td>
+                                                <td class="stat-cell" align="center" width="33%">
+                                                    <p
+                                                        style="margin: 0; color: #3b82f6; font-size: 20px; font-weight: 700;">
+                                                        {{stats.medium}}</p>
+                                                    <p
+                                                        style="margin: 2px 0 0 0; color: #64748b; font-size: 11px; font-weight: 500;">
+                                                        Medium</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- CTA Section -->
                     <tr>
                         <td style="padding: 0 40px 40px 40px;" class="mobile-padding">
-
-                            <!-- OTP Code Box -->
-                            <table width="100%" border="0" cellspacing="0" cellpadding="0"
-                                style="background-color: #f9fafb; border-radius: 12px;">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                 <tr>
-                                    <td align="center" style="padding: 32px 16px;">
-                                        <span class="otp-text"
-                                            style="color: #1379f0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 36px; font-weight: 700; letter-spacing: 0.6em; padding-left: 0.6em;">{{otp}}</span>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- Expiration Info -->
-                            <p style="margin: 32px 0 0 0; text-align: center; color: #64748b; font-size: 14px;">
-                                Valid for the next 10 minutes
-                            </p>
-
-                            <!-- Message Divider -->
-                            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 40px;">
-                                <tr>
-                                    <td style="border-top: 1px solid #f1f5f9; padding-top: 32px;">
+                                    <td>
                                         <p style="color: #4b5563; font-size: 14px; line-height: 1.6; margin: 0;">
-                                            Welcome to SnapSec!<br><br>
-                                            We're excited to have you on board. Please use the verification code above
-                                            to confirm your email address and finalize your account setup.
+                                            Hello Team,<br><br>
+                                            This is a reminder that you have several open vulnerabilities that have not
+                                            been addressed yet. Please prioritize the **Critical** and **High** issues
+                                            to ensure our platform remains secure and stays within SLA compliance.
                                         </p>
                                     </td>
                                 </tr>
-                            </table>
-
-                            <!-- Security Alert Box -->
-                            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 32px;">
                                 <tr>
-                                    <td
-                                        style="background-color: #fffbeb; border-left: 3px solid #f59e0b; padding: 16px; border-radius: 0 8px 8px 0;">
-                                        <p style="color: #92400e; font-size: 13px; line-height: 1.6; margin: 0;">
-                                            <strong style="color: #b45309;">Important:</strong> If you didn't create a
-                                            SnapSec account, you can safely ignore this email. No further action is
-                                            required.
-                                        </p>
+                                    <td style="padding-top: 32px;" align="center">
+                                        <!--[if mso]>
+                                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://suite.snapsec.co/dashboard" style="height:48px;v-text-anchor:middle;width:220px;" arcsize="25%" stroke="f" fillcolor="#1379f0">
+                                          <w:anchorlock/>
+                                          <center>
+                                        <![endif]-->
+                                        <a href="https://suite.snapsec.co/dashboard"
+                                            style="background-color: #1379f0; border-radius: 12px; color: #ffffff; display: inline-block; font-size: 15px; font-weight: 600; line-height: 48px; text-align: center; text-decoration: none; width: 100%; box-shadow: 0 4px 12px rgba(19, 121, 240, 0.25);">Review
+                                            Open Tickets</a>
+                                        <!--[if mso]>
+                                          </center>
+                                        </v:roundrect>
+                                        <![endif]-->
                                     </td>
                                 </tr>
                             </table>
@@ -185,13 +222,12 @@
 
                 <!-- Bottom Meta Footer -->
                 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="mobile-width"
-                    style="max-width: 480px; width: 100%; margin-top: 24px;">
+                    style="max-width: 500px; width: 100%; margin-top: 24px;">
                     <tr>
                         <td align="center" style="padding: 0 40px 48px 40px;" class="mobile-padding">
                             <p style="color: #94a3b8; font-size: 11px; line-height: 1.6; margin: 0;">
-                                You are receiving this email because a registration request was made for a SnapSec
-                                account.
-                                Please do not reply to this automated message.
+                                You are receiving this weekly automated summary as a registered owner of vulnerabilities
+                                on SnapSec. You can adjust your notification frequency in your settings.
                             </p>
                         </td>
                     </tr>

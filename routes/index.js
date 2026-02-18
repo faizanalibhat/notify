@@ -10,5 +10,6 @@ const activity = require("./activity.routes");
 router.use("/template", template);
 router.use("/notification", notifications)
 router.use("/activity", activity);
+router.use("/test", require("./test.routes"));
 
 module.exports = router;
