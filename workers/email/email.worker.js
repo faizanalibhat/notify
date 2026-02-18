@@ -6,11 +6,17 @@ const { connectDb } = require("../../models/connectDb");
 const { renderTemplate } = require("../../services/render.service");
 const { getValidatorForTemplate } = require("../../services/validator.service");
 const idempotencyService = require("../../services/idempotency.service");
-const transporter = require("../../channels/email/index");
+const createTransport = require("../../channels/email/index");
 const { appConfig } = require('../../config/app.config');
 
 // Channel identifier for idempotency
 const CHANNEL = "email";
+
+// Initialize transporter once globally (lazy load or on start)
+// However, to avoid connection timeout issues if the worker runs effectively forever, 
+// we might want to keep creating it or manage it better. 
+// For now, let's keep it local but maybe move it out if performance is key.
+// Given the user is debugging, detailed logging is priority.
 
 async function emailNotificationHandler(payload, msg, channel) {
     // Extract key fields
@@ -78,9 +84,11 @@ async function emailNotificationHandler(payload, msg, channel) {
         let successCount = 0;
         let failCount = 0;
 
-        const email_sender = transporter();
+        const email_sender = createTransport();
 
         // 5. Send Emails
+        console.log(`${logPrefix} [+] Starting email send loop for ${recievers.length} receivers. FROM: ${appConfig.EMAIL_FROM}`);
+
         for (let reciever of recievers) {
             if (!reciever.email) {
                 console.log(`${logPrefix} [!] Skipping recipient with no email address`);
@@ -88,15 +96,18 @@ async function emailNotificationHandler(payload, msg, channel) {
             }
 
             try {
-                await email_sender.sendMail({
+                console.log(`${logPrefix} [>] Sending to ${reciever.email} with Subject: "${context.subject}"...`);
+                const info = await email_sender.sendMail({
                     from: appConfig.EMAIL_FROM,
                     to: reciever.email,
                     subject: context.subject,
                     html: emailBody,
                 });
+                console.log(`${logPrefix} [V] Sent to ${reciever.email}. MessageID: ${info.messageId}`);
                 successCount++;
             } catch (err) {
                 console.log(`${logPrefix} [-] FAILED TO SEND EMAIL TO ${reciever.email}: ${err.message}`);
+                console.error(err); // Log full error object
                 failCount++;
             }
         }
