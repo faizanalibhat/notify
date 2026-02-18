@@ -31,8 +31,8 @@ async function emailNotificationHandler(payload, msg, channel) {
             return channel.ack(msg);
         }
 
-        // Use template_id if available
-        const templateKey = template_id;
+        // Use template_id if available, otherwise fallback to TEMPLATE_ID
+        const templateKey = template_id || payload.TEMPLATE_ID;
 
         if (!templateKey) {
             console.log(`${logPrefix} [!] Missing template_id (and no slug fallback)`);
