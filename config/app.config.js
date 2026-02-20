@@ -3,6 +3,9 @@ const { Config } = require("./env");
 const appConfig = {
     DB_NAME: Config.get("DB_NAME", "notify"),
 
+    PUBLIC_KEY_PATH: Config.get("PUBLIC_KEY_PATH", "/app/keys/public.pem"),
+    SERVICE_KEY: Config.get("SERVICE_KEY"),
+
     SMTP_HOST: Config.get("SMTP_HOST"),
     SMTP_PORT: Config.get("SMTP_PORT"),
     SMTP_SECURE: Config.get("SMTP_SECURE"),

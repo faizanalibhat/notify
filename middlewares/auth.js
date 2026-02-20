@@ -2,8 +2,11 @@ const passport = require('passport');
 const httpStatus = require('http-status');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
-const publicKey = fs.readFileSync(process.env.PUBLIC_KEY_PATH, 'utf8');
-const serviceKey = process.env.SERVICE_KEY;
+
+const { appConfig } = require('../config/app.config');
+
+const publicKey = fs.readFileSync(appConfig.PUBLIC_KEY_PATH, 'utf8');
+const serviceKey = appConfig.SERVICE_KEY;
 const axios = require('axios');
 
 const verifyCallback = (req, resolve, reject, requiredRights) => async (err, user, info) => {
@@ -38,7 +41,7 @@ const authenticateService = () => async (req, res, next) => {
 
         if (apiKey) {
             try {
-            const response = await axios.get(`${process.env.AUTH_SERVICE_URL}/api/org/apikey/validate`, {
+            const response = await axios.get(`${appConfig.AUTH_SERVICE_URL}/api/org/apikey/validate`, {
                     headers: { "x-api-key": apiKey },
                 });
                 const { success, org } = response.data.data;
