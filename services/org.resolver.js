@@ -1,12 +1,13 @@
 const axios = require("axios");
+const { appConfig } = require("../config/app.config");
 
 
 const resolveAllMembers = async (orgId) => {
     try {
 
-        const base = await axios.get(`${process.env.AUTH_SERVICE_URL}/api/org/members?orgId=${orgId}&page=1&limit=1`, {
+        const base = await axios.get(`${appConfig.AUTH_SERVICE_URL}/api/org/members?orgId=${orgId}&page=1&limit=1`, {
             method: "GET",
-            headers: { 'service-api-key': process.env.SERVICE_KEY }
+            headers: { 'service-api-key': appConfig.SERVICE_KEY }
         });
 
         let total = base?.data?.data?.total || 0;
@@ -18,9 +19,9 @@ const resolveAllMembers = async (orgId) => {
 
         while (pages > 0) {
             try {
-                let resp = await axios.get(`${process.env.AUTH_SERVICE_URL}/api/org/members?orgId=${orgId}&page=${pages}&limit=${limit}`, {
+                let resp = await axios.get(`${appConfig.AUTH_SERVICE_URL}/api/org/members?orgId=${orgId}&page=${pages}&limit=${limit}`, {
                     method: "GET",
-                    headers: { 'service-api-key': process.env.SERVICE_KEY }
+                    headers: { 'service-api-key': appConfig.SERVICE_KEY }
                 });
 
                 pages -= 1;
