@@ -14,7 +14,6 @@ exports.testAllTemplates = async (req, res) => {
                 context: {
                     otp: "123456",
                     name: "John Doe",
-                    year: new Date().getFullYear(),
                     subject: "Your Login OTP"
                 }
             },
@@ -22,64 +21,48 @@ exports.testAllTemplates = async (req, res) => {
                 id: "REGISTRATION_OTP",
                 context: {
                     otp: "654321",
-                    year: new Date().getFullYear(),
+                    name: "John Doe",
                     subject: "Your Registration OTP"
                 }
             },
             {
-                id: "VULN_ASSIGNED_NOTIFICATION",
+                id: "MAGIC_LINK",
                 context: {
-                    assignee: { name: "Jane Doe", userId: "123" },
-                    vuln: {
-                        title: "SQL Injection in Login Page",
-                        orgId: "VULN-2023-001",
-                        severity: "Critical"
-                    },
-                    action_url: "https://suite.snapsec.co/vuln/123",
-                    year: new Date().getFullYear(),
-                    subject: "New Vulnerability Assigned: VULN-2023-001"
+                    magicLink: "https://app.snapsec.co/auth/magic-login?token=xyz123",
+                    expiryDays: "30",
+                    subject: "Your Magic Login Link"
                 }
             },
             {
-                id: "SLA_BREACH_NOTIFICATION",
+                id: "PASSWORD_RESET",
                 context: {
-                    daysOverdue: 5,
-                    vuln: {
-                        title: "XSS in Search Bar",
-                        orgId: "VULN-2023-002",
-                        severity: "High",
-                        state: "Open"
-                    },
-                    deadline: "2023-10-25",
-                    action_url: "https://suite.snapsec.co/vuln/456",
-                    year: new Date().getFullYear(),
-                    subject: "SLA BREACH ALERT: VULN-2023-002"
+                    resetLink: "https://app.snapsec.co/auth/change-password?token=abc456",
+                    expiryHours: "1 hour",
+                    subject: "Reset Your Password"
                 }
             },
             {
-                id: "WEEKLY_TICKET_REMINDER",
+                id: "ORG_INVITATION",
                 context: {
-                    stats: {
-                        totalOpen: 15,
-                        critical: 3,
-                        high: 5,
-                        medium: 7
-                    },
-                    year: new Date().getFullYear(),
-                    subject: "Weekly Security Digest: 15 Open Issues"
+                    orgName: "Acme Corp",
+                    iniviteLink: "https://app.snapsec.co/auth/invite?token=invite789",
+                    expiryHours: "48",
+                    subject: "You've been invited to join Acme Corp"
                 }
             },
             {
-                id: "WEEKLY_LEAD_SUMMARY",
+                id: "WELCOME_EMAIL",
                 context: {
-                    stats: {
-                        resolutionRate: 85,
-                        resolved: 45,
-                        pending: 12,
-                        newIssues: 5
-                    },
-                    year: new Date().getFullYear(),
-                    subject: "Weekly Security Progress Report"
+                    name: "John Doe",
+                    subject: "Snapsec Suite: Support & Next Steps"
+                }
+            },
+            {
+                id: "GENERIC_EMAIL",
+                context: {
+                    heading: "Test Generic Notification",
+                    body: "This is a test of the generic email template. <br> <strong>Bold text</strong> and normal text.",
+                    subject: "Generic Test Email"
                 }
             }
         ];
@@ -88,20 +71,31 @@ exports.testAllTemplates = async (req, res) => {
 
         for (const tmpl of templates) {
             try {
-                // Construct payload similar to what workers do
+                // Construct payload similar to what auth service does
                 const payload = {
-                    orgId: "TEST_ORG",
-                    TEMPLATE_ID: tmpl.id,
-                    context: tmpl.context,
-                    recievers: [{ email: email }]
+                    event_id: `test-${Date.now()}-${tmpl.id}`,
+                    trace_id: `test-trace-${Date.now()}`,
+                    template_id: tmpl.id,
+                    context: {
+                        ...tmpl.context,
+                        email: email, // Context often needs email for robohash images etc
+                        base_url: "app.snapsec.co"
+                    },
+                    recievers: [{ email: email }],
+                    notification: {
+                        title: tmpl.context.subject || "Test Notification",
+                        origin: "test",
+                        resourceMeta: {
+                            product: "test",
+                            resource: tmpl.id
+                        }
+                    },
+                    channels: ["email"]
                 };
 
-                // Directly use the logic that routes to email provider
-                // We can publish to RabbitMQ to test end-to-end, or call service directly.
-                // Publishing to RabbitMQ mimics real flow best.
-
+                // Publish to RabbitMQ to test end-to-end
                 await mqbroker.publish("notification", "notification.email", payload);
-                results.push({ id: tmpl.id, status: "queued" });
+                results.push({ id: tmpl.id, status: "queued", event_id: payload.event_id });
 
             } catch (err) {
                 console.error(`Error sending test for ${tmpl.id}:`, err);
