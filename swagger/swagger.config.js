@@ -10,7 +10,7 @@ const options = {
     },
     servers: [
       {
-        url: process.env.BASE_URL || 'http://localhost:3000',
+        url: appConfig.BASE_URL || 'http://localhost:3000',
         description: 'Notify Service Server'
       }
     ],
