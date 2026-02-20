@@ -1,4 +1,5 @@
 const swaggerJsDoc = require('swagger-jsdoc')
+const { appConfig } = require('../config/app.config')
 
 const options = {
   definition: {
