@@ -7,6 +7,7 @@ const orgMembersResolver = require("../services/org.resolver");
 
 async function notificationHandler(payload, msg, channel) {
     try {
+        console.log("[DEBUG] notification.worker.js received payload: ", JSON.stringify(payload));
         const { orgId, notification, store, channels = [], authContext, recievers, orgCoverage } = payload;
 
         let recieversList = recievers ? Array.isArray(recievers) ? recievers : [recievers] : [];
