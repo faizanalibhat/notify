@@ -57,8 +57,6 @@ async function emailNotificationHandler(payload, msg, channel) {
         }
 
         // 3. Load Template
-        console.log(`${logPrefix} [+] TEMPLATE KEY: ${templateKey}, CONTEXT: `, JSON.stringify(context));
-        console.log(`${logPrefix} [+] FULL PAYLOAD: `, JSON.stringify(payload));
         const template = await templateService.getTemplateBySlug(templateKey);
 
         if (!template || template.status === "failed") {
