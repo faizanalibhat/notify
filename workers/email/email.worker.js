@@ -26,6 +26,7 @@ async function emailNotificationHandler(payload, msg, channel) {
         template_id,
         context,
         recievers,
+        attachments, // Support for file attachments
     } = payload;
 
     const logPrefix = `[${trace_id || 'NO_TRACE'}] [${event_id || 'NO_EVENT'}]`;
@@ -86,7 +87,19 @@ async function emailNotificationHandler(payload, msg, channel) {
 
         const email_sender = createTransport();
 
-        // 5. Send Emails
+        // 5. Process attachments if present
+        // Attachments should be in format: [{ filename: 'file.xlsx', content: 'base64string', contentType: 'application/...' }]
+        let processedAttachments = [];
+        if (attachments && Array.isArray(attachments) && attachments.length > 0) {
+            console.log(`${logPrefix} [+] Processing ${attachments.length} attachment(s)`);
+            processedAttachments = attachments.map(att => ({
+                filename: att.filename,
+                content: Buffer.from(att.content, 'base64'),
+                contentType: att.contentType || 'application/octet-stream'
+            }));
+        }
+
+        // 6. Send Emails
         console.log(`${logPrefix} [+] Starting email send loop for ${recievers.length} receivers. FROM: ${appConfig.EMAIL_FROM}`);
 
         for (let reciever of recievers) {
@@ -96,13 +109,21 @@ async function emailNotificationHandler(payload, msg, channel) {
             }
 
             try {
-                console.log(`${logPrefix} [>] Sending to ${reciever.email} with Subject: "${context.subject}"...`);
-                const info = await email_sender.sendMail({
+                console.log(`${logPrefix} [>] Sending to ${reciever.email} with Subject: "${context.subject}"${processedAttachments.length > 0 ? ` with ${processedAttachments.length} attachment(s)` : ''}...`);
+                
+                const mailOptions = {
                     from: appConfig.EMAIL_FROM,
                     to: reciever.email,
                     subject: context.subject,
                     html: emailBody,
-                });
+                };
+
+                // Add attachments if present
+                if (processedAttachments.length > 0) {
+                    mailOptions.attachments = processedAttachments;
+                }
+
+                const info = await email_sender.sendMail(mailOptions);
                 console.log(`${logPrefix} [V] Sent to ${reciever.email}. MessageID: ${info.messageId}`);
                 successCount++;
             } catch (err) {

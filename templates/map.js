@@ -64,5 +64,11 @@ module.exports = [
         template_path: "/templates/email/SLA_BREACH.hbs",
         active: true,
         type: "email"
+    },
+    {
+        template_id: "SLA_WEEKLY_REPORT",
+        template_path: "/templates/email/SLA_WEEKLY_REPORT.hbs",
+        active: true,
+        type: "email"
     }
 ];
