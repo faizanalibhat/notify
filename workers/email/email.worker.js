@@ -110,9 +110,9 @@ async function emailNotificationHandler(payload, msg, channel) {
 
             try {
                 console.log(`${logPrefix} [>] Sending to ${reciever.email} with Subject: "${context.subject}"${processedAttachments.length > 0 ? ` with ${processedAttachments.length} attachment(s)` : ''}...`);
-                
+
                 const mailOptions = {
-                    from: `Snapsec Suite <${appConfig.EMAIL_FROM}>`,
+                    from: appConfig.EMAIL_FROM,
                     to: reciever.email,
                     subject: context.subject,
                     html: emailBody,
