@@ -28,7 +28,7 @@ const getAllNotifications = async (orgId, filter = {}, page = 1, limit = 10) => 
 
     const supportedFilters = {};
     supportedFilters.users = await Notification.distinct('createdBy.email', { orgId: orgId });
-    supportedFilters.product = await Notification.distinct('origin', { orgId: orgId });
+    supportedFilters.product = ["WAS", "VM", "ASM", "VS", "AIM"];
 
     return { notifications, total, unseen, filters: supportedFilters };
 }
