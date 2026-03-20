@@ -81,7 +81,8 @@ async function emailNotificationHandler(payload, msg, channel) {
         }
 
         const { raw } = template;
-        const emailBody = renderTemplate(raw, context);
+        const enrichedContext = { ...context, base_url: context.base_url || appConfig.BASE_URL };
+        const emailBody = renderTemplate(raw, enrichedContext);
         let successCount = 0;
         let failCount = 0;
 
