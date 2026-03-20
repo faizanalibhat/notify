@@ -2,6 +2,7 @@ const { Config } = require("./env");
 
 const appConfig = {
     DB_NAME: Config.get("DB_NAME", "notify"),
+    BASE_URL: Config.get("BASE_URL"),
 
     PUBLIC_KEY_PATH: Config.get("PUBLIC_KEY_PATH", "/app/keys/public.pem"),
     SERVICE_KEY: Config.get("SERVICE_KEY"),

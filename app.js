@@ -5,6 +5,7 @@ const router = require("./routes/index");
 const cors = require("cors");
 const { authenticateService } = require("./middlewares/auth");
 const initSwagger = require("./swagger");
+const { appConfig } = require("./config/app.config");
 
 
 // workers
@@ -18,13 +19,20 @@ const { Config } = require("./config/env");
 
 const app = express();
 
-// app.use(cors());
-app.use(
-  cors({
-    origin: true,
+// CORS configuration
+const corsOptions = {
+    origin: [
+        appConfig.BASE_URL,
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
     credentials: true,
-  }),
-);
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    allowedHeaders: "Content-Type,Authorization,X-Requested-With,Accept,Origin",
+};
+
+app.options(/.*/, cors(corsOptions));
+// app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 
