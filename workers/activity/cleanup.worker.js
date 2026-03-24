@@ -1,20 +1,20 @@
 const Activity = require("../../models/activity.model");
 
-const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000; // 10 days in milliseconds
 const CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000; // Run every 24 hours
 
 /**
- * Deletes activities older than one month
+ * Deletes activities older than 10 days
  */
 async function cleanupOldActivities() {
     try {
-        const oneMonthAgo = new Date(Date.now() - ONE_MONTH_MS);
+        const tenDaysAgo = new Date(Date.now() - TEN_DAYS_MS);
 
         const result = await Activity.deleteMany({
-            createdAt: { $lt: oneMonthAgo }
+            createdAt: { $lt: tenDaysAgo }
         });
 
-        console.log(`[+] ACTIVITY CLEANUP: Deleted ${result.deletedCount} activities older than ${oneMonthAgo.toISOString()}`);
+        console.log(`[+] ACTIVITY CLEANUP: Deleted ${result.deletedCount} activities older than ${tenDaysAgo.toISOString()}`);
         
         return result;
     } catch (err) {
