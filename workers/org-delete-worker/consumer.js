@@ -1,5 +1,12 @@
 const mongoose = require("mongoose");
 
+// Explicitly register all 5 Notify models
+require("../../models/activity.model.js");
+require("../../models/activityLog.model.js");
+require("../../models/idempotency.model.js");
+require("../../models/notifications.model.js");
+require("../../models/templates.model.js");
+
 class OrgDeleteConsumer {
     static async handleOrgDeleteEvent(payload, msg, channel) {
         const { orgId } = payload;
@@ -15,8 +22,11 @@ class OrgDeleteConsumer {
         try {
             const targetId = new mongoose.Types.ObjectId(orgId);
 
+            // Verified Model Names from backend/notify/models/
             const modelsToClean = [
                 'activity',
+                'activityLog',
+                'idempotency',
                 'notifications',
                 'templates',
             ];
