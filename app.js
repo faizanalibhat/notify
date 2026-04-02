@@ -13,6 +13,7 @@ const emailWorker = require("./workers/email/email.worker");
 const activityWorker = require("./workers/activity/worker");
 const notificationWorker = require("./workers/notification.worker");
 const { startCleanupWorker: activityCleanupWorker } = require("./workers/activity/cleanup.worker");
+const orgDeleteWorker = require("./workers/org-delete-worker/main");
 
 const connect = require("./database/connect");
 const { Config } = require("./config/env");
@@ -52,6 +53,7 @@ connect();
 emailWorker();
 activityWorker();
 notificationWorker();
+orgDeleteWorker();
 activityCleanupWorker();
 
 app.use(errorHandler);
