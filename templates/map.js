@@ -8,6 +8,12 @@ module.exports = [
     {
         template_id: "MAGIC_LINK",
         template_path: "/templates/email/MAGIC_LINK.hbs",
+        active: false,
+        type: "email"
+    },
+    {
+        template_id: "DEMO_CREDENTIALS",
+        template_path: "/templates/email/DEMO_CREDENTIALS.hbs",
         active: true,
         type: "email"
     },
