@@ -70,5 +70,11 @@ module.exports = [
         template_path: "/templates/email/SLA_WEEKLY_REPORT.hbs",
         active: true,
         type: "email"
+    },
+    {
+        template_id: "AIM_POLICY_ALERT",
+        template_path: "/templates/email/AIM_POLICY_ALERT.hbs",
+        active: true,
+        type: "email"
     }
 ];
