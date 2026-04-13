@@ -2,7 +2,7 @@ name: Deploy Notify Service
 
 on:
   push:
-    branches: [ develop, master, sales ]  # Trigger for three branches
+    branches: [ staging, master ]
 
 env:
   SERVICE_NAME: notify
@@ -11,7 +11,7 @@ env:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref == 'refs/heads/develop' && 'staging' || github.ref == 'refs/heads/sales' && 'sales' || 'production' }}
+    environment: ${{ github.ref == 'refs/heads/staging' && 'staging' || 'production' }}
     permissions:
       contents: read
       packages: write
@@ -52,15 +52,15 @@ jobs:
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: |
-            ${{ github.ref == 'refs/heads/develop' && secrets.STAGING_SSH_PRIVATE_KEY || github.ref == 'refs/heads/sales' && secrets.SALES_SSH_PRIVATE_KEY || secrets.PROD_SSH_PRIVATE_KEY }}
+            ${{ github.ref == 'refs/heads/staging' && secrets.STAGING_SSH_PRIVATE_KEY || secrets.PROD_SSH_PRIVATE_KEY }}
 
       # Deploy to the appropriate server
       - name: Deploy to Server
         env:
-          DEPLOY_ENV: ${{ github.ref == 'refs/heads/develop' && 'staging' || github.ref == 'refs/heads/sales' && 'sales' || 'production' }}
+          DEPLOY_ENV: ${{ github.ref == 'refs/heads/staging' && 'staging' || 'production' }}
         run: |
           # SSH into the right host and deploy the Docker image
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ github.ref == 'refs/heads/develop' && secrets.STAGING_HOST || github.ref == 'refs/heads/sales' && secrets.SALES_HOST || secrets.PROD_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ github.ref == 'refs/heads/staging' && secrets.STAGING_HOST || secrets.PROD_HOST }} << 'EOF'
             # Navigate to the corresponding directory
             cd /root/${{ env.DEPLOY_ENV }}
 
@@ -75,5 +75,5 @@ jobs:
       - name: Print debug info
         run: |
           echo "Deploying to environment: ${{ env.DEPLOY_ENV }}"
-          echo "Using host: ${{ github.ref == 'refs/heads/develop' && secrets.STAGING_HOST || github.ref == 'refs/heads/sales' && secrets.SALES_HOST || secrets.PROD_HOST }}"
+          echo "Using host: ${{ github.ref == 'refs/heads/staging' && secrets.STAGING_HOST || secrets.PROD_HOST }}"
           echo "Using SSH username: ${{ secrets.SSH_USERNAME }}"
