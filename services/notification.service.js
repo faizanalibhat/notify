@@ -71,18 +71,40 @@ const getAllNotifications = async (orgId, userId, filter = {}, page = 1, limit =
         const actorIds = [...new Set(notifications.map(n => n.actor?.id).filter(id => id))];
         const userMap = await resolveUserMetadata(actorIds);
 
-        notifications.forEach(n => {
-            if (n.actor && n.actor.id && userMap[n.actor.id]) {
-                n.actor = { ...n.actor, ...userMap[n.actor.id] };
+        const denoisedNotifications = notifications.map(n => {
+            // Construct target from resourceMeta/resourceUrl if not present
+            const target = n.target || {
+                id: n.resourceMeta?.resourceItemId,
+                type: n.resourceMeta?.resource,
+                title: n.resourceMeta?.resourceItemName,
+                url: n.resourceUrl
+            };
+
+            // Hydrate actor
+            let actor = n.actor;
+            if (actor && actor.id && userMap[actor.id]) {
+                actor = { ...actor, ...userMap[actor.id] };
             }
-            // Add a virtual 'seen' field for the current user
-            n.seen = n.seenBy ? n.seenBy.includes(userId) : false;
+
+            return {
+                _id: n._id,
+                orgId: n.orgId,
+                userIds: n.userIds,
+                actor,
+                target,
+                seenBy: n.seenBy || [],
+                seen: n.seenBy ? n.seenBy.includes(userId) : false,
+                origin: n.origin,
+                event_key: n.event_key,
+                title_html: n.title_html,
+                createdAt: n.createdAt
+            };
         });
 
         const supportedFilters = {};
         supportedFilters.product = ["WAS", "VM", "ASM", "VS", "AIM"];
 
-        return { notifications, total, unseen, filters: supportedFilters };
+        return { notifications: denoisedNotifications, total, unseen, filters: supportedFilters };
     } catch (err) {
         console.error("[+] ERROR FETCHING NOTIFICATIONS", err.message);
         return { notifications: [], total: 0, unseen: 0 };
