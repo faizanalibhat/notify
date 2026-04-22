@@ -66,11 +66,13 @@ const resolveMembersUsingRoles = async (orgId, roles = []) => {
     try {
         const members = await resolveMembers(orgId);
 
-        if (roles.includes("*") || roles.includes("all")) return members?.map(member => ({ email: member.email }));
+        if (roles.includes("*") || roles.includes("all")) {
+            return members?.map(member => ({ email: member.email, userId: member.userId || member._id }));
+        }
 
         const recipients = members
         ?.filter(member => roles.includes(member.role))
-        ?.map(member => ({ email: member?.email }));
+        ?.map(member => ({ email: member?.email, userId: member.userId || member._id }));
 
         return recipients || [];
     }
@@ -85,11 +87,13 @@ const resolveMembersUsingTeams = async (orgId, teams = []) => {
     try {
         const members = await resolveMembers(orgId);
 
-        if (teams.includes("*") || teams.includes("all")) return members?.map(member => ({ email: member.email }));
+        if (teams.includes("*") || teams.includes("all")) {
+            return members?.map(member => ({ email: member.email, userId: member.userId || member._id }));
+        }
 
         const recipients = members
         ?.filter(member => teams.includes(member?.teamId))
-        ?.map(member => ({ email: member?.email }));
+        ?.map(member => ({ email: member?.email, userId: member.userId || member._id }));
 
         return recipients || [];
     }
@@ -100,4 +104,4 @@ const resolveMembersUsingTeams = async (orgId, teams = []) => {
 }
 
 
-module.exports = { resolveMembers, resolveMembersUsingRoles, resolveMembersUsingTeams };
+module.exports = { resolveAllMembers, resolveMembers, resolveMembersUsingRoles, resolveMembersUsingTeams };

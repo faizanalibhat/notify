@@ -3,8 +3,6 @@ const { connectDb } = require("../models/connectDb");
 const notificationService = require("../services/notification.service");
 const orgMembersResolver = require("../services/org.resolver");
 
-
-
 async function notificationHandler(payload, msg, channel) {
     try {
         const { orgId, notification, store, channels = [], authContext, recievers, orgCoverage } = payload;
@@ -13,8 +11,6 @@ async function notificationHandler(payload, msg, channel) {
 
         // based on the org coverage, populate the reciever with their emails.
         if (orgCoverage) {
-
-            // can be specified via roles, teams
             let roles = orgCoverage.roles;
             let teams = orgCoverage.teams;
 
@@ -30,7 +26,6 @@ async function notificationHandler(payload, msg, channel) {
             await mqbroker.publish("notification", `notification.${channel}`, {
                 ...payload,
                 recievers: recieversList,
-                // Ensure these are explicitly passed if they exist in payload
                 event_id: payload.event_id,
                 trace_id: payload.trace_id,
                 template_id: payload.template_id
@@ -38,34 +33,46 @@ async function notificationHandler(payload, msg, channel) {
         }
 
         if (store && Object.keys(notification || {})?.length) {
+            // New structure: userIds (owners), actor, target
+            // Check both root payload and nested notification object for owners/userIds
+            let userIds = payload.owners || payload.userIds || notification.owners || notification.userIds || [];
+            
+            // Fallback: If no owners/userIds provided, try to extract from recieversList
+            if (!userIds.length && recieversList.length) {
+                userIds = [...new Set(recieversList.map(r => r.userId || r._id).filter(id => id))];
+            }
 
-            let user = notification.user;
-
-            if (authContext) {
-                user = {
+            let actor = notification.actor;
+            if (!actor && authContext) {
+                actor = {
+                    id: authContext?._id,
                     name: authContext?.firstName + " " + authContext?.lastName,
                     email: authContext?.email,
-                    userId: authContext?._id
+                    avatar: authContext?.avatar,
+                    type: "user"
                 }
             }
 
-            // Use title_html directly from the payload (passed by producer services like ASM)
-            // If the producer didn't send it, it will simply be undefined.
             let title_html = payload.title_html || notification.title_html;
 
             let obj = {
                 orgId,
                 ...notification,
+                userIds,
+                actor,
+                target: notification.target,
                 event_key: payload.event_key,
                 ui_context: payload.ui_context,
                 title_html,
-                ...(user ? { createdBy: user } : {}),
-                sentTo: recieversList
+                origin: payload.origin || notification.origin
             };
 
-            const noti = await notificationService.createNotification(orgId, obj);
+            // Remove legacy fields if they exist to keep it clean
+            delete obj.owners;
+            delete obj.user;
 
-            console.log("[+] NOTIFICATION STORED ", noti);
+            const noti = await notificationService.createNotification(orgId, obj);
+            console.log("[+] NOTIFICATION STORED ", noti?._id);
         }
 
         channel.ack(msg);
@@ -76,16 +83,8 @@ async function notificationHandler(payload, msg, channel) {
     }
 }
 
-
-
 async function main() {
-    // use this when running in isolation from main app.
-    // await connectDb();
-
-
-    // consume events
     await mqbroker.consume("notification", "notification", notificationHandler, 'notificationsQueue');
 }
-
 
 module.exports = main;

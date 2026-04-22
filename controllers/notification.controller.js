@@ -1,7 +1,6 @@
 const notificationService = require("../services/notification.service");
 const crypto = require("crypto");
 
-
 const getPeriodStartDate = (period) => {
     const now = new Date();
     const value = parseInt(period.slice(0, -1));
@@ -24,23 +23,19 @@ const getPeriodStartDate = (period) => {
     return now;
 }
 
-
 const getAllNotifications = async (req, res) => {
-    const { orgId, email } = req.authenticatedService;
+    const { orgId, _id: userId } = req.authenticatedService;
 
-    const { origin, seen, search, period } = req.query;
+    const { origin, unread, search, period } = req.query;
 
-    const page = parseInt(req.query.page);
-    const limit = parseInt(req.query.limit);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
 
     const filter = {};
 
     if (origin && origin != "all") filter.origin = origin;
-
-    // prevent notifications from current user
-    // filter['createdBy.email'] = { $ne: email };
-
-    if (seen) filter.seen = seen == 'true';
+    
+    if (unread) filter.unread = unread;
 
     if (search) {
         filter.$or = [
@@ -60,8 +55,7 @@ const getAllNotifications = async (req, res) => {
     }
 
     for (let [key, val] of Object.entries(req.query)) {
-        if (!['page', 'limit', 'origin', 'seen', 'search', 'period'].includes(key)) {
-
+        if (!['page', 'limit', 'origin', 'unread', 'search', 'period'].includes(key)) {
             if (!val) continue;
 
             if (key == 'product') {
@@ -70,58 +64,43 @@ const getAllNotifications = async (req, res) => {
                     filter['origin'] = products.length > 1 ? { $in: products } : products[0];
                 }
             }
-            else if (key == "email") {
-                const emails = val.split(",").map(e => e.trim()).filter(e => e);
-                if (emails.length > 0) {
-                    filter['createdBy.email'] = emails.length > 1 ? { $in: emails } : emails[0];
-                }
-            }
         }
     }
 
-    const notifications = await notificationService.getAllNotifications(orgId, filter, page, limit);
+    const notifications = await notificationService.getAllNotifications(orgId, userId, filter, page, limit);
 
     return res.json(notifications);
 }
 
-
-
 const markNotificationSeen = async (req, res) => {
-    const { orgId } = req.authenticatedService;
+    const { orgId, _id: userId } = req.authenticatedService;
     const { id } = req.params;
 
-    const notification = await notificationService.markNotificationSeen(orgId, id);
+    const notification = await notificationService.markNotificationSeen(orgId, userId, id);
+
+    if (notification.code) return res.status(notification.code).json(notification);
 
     return res.json(notification);
 }
 
-
-
 const markAllAsSeen = async (req, res) => {
-    const { orgId } = req.authenticatedService;
-
+    const { orgId, _id: userId } = req.authenticatedService;
     const { origin } = req.body;
 
     let finalOrigin = origin;
+    if (finalOrigin == "all") finalOrigin = null;
 
-    if (finalOrigin == "all") {
-        finalOrigin = null;
-    }
-
-    const markedAsSeen = await notificationService.markAllAsSeen(orgId, finalOrigin);
+    await notificationService.markAllAsSeen(orgId, userId, finalOrigin);
 
     return res.json({ success: true, message: "success" });
 }
-
-
 
 const { mqbroker } = require("../services/rabbitmq.service");
 
 const testEmailNotification = async (req, res) => {
     try {
-        const { email, template_id, event_id } = req.body; // Allow manual event_id
+        const { email, template_id, event_id } = req.body;
 
-        // Auto-seed template if missing (to ensure test works in all environments)
         const Template = require("../models/templates.model");
         const targetSlug = template_id || "VM_REPORT_CREATED";
         const exists = await Template.findOne({ slug: targetSlug });
@@ -137,7 +116,6 @@ const testEmailNotification = async (req, res) => {
             console.log(`[Test] Auto-seeded template: ${targetSlug}`);
         }
 
-        // Canonical payload structure
         const payload = {
             event_id: event_id || crypto.randomUUID(),
             trace_id: "test-trace-" + Date.now(),
