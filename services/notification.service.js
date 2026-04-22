@@ -92,6 +92,7 @@ const getAllNotifications = async (orgId, userId, filter = {}, page = 1, limit =
                 userIds: n.userIds,
                 actor,
                 target,
+                context: n.context,
                 seenBy: n.seenBy || [],
                 seen: n.seenBy ? n.seenBy.includes(userId) : false,
                 origin: n.origin,
