@@ -97,6 +97,7 @@ const getAllNotifications = async (orgId, userId, filter = {}, page = 1, limit =
                 seen: n.seenBy ? n.seenBy.includes(userId) : false,
                 origin: n.origin,
                 event_key: n.event_key,
+                ui_context: n.ui_context,
                 title_html: n.title_html,
                 createdAt: n.createdAt
             };
