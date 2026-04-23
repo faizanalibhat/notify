@@ -56,7 +56,7 @@ async function notificationHandler(payload, msg, channel) {
         }
 
         const finalRecievers = Array.from(uniqueRecipientsMap.values());
-        console.log(`[NOTIFY] Total recipients after exclusion: ${finalRecievers.length}`);
+        console.log(`[NOTIFY] Total recipients after exclusion: ${finalRecievers.length} (${finalRecievers.map(r => r.email).join(', ')})`);
 
         // publish to channels with recievers resolved.
         for (let channel of channels) {
@@ -112,7 +112,9 @@ async function notificationHandler(payload, msg, channel) {
             delete obj.user;
 
             const noti = await notificationService.createNotification(orgId, obj);
-            console.log(`[NOTIFY] SUCCESS: Notification stored with ID: ${noti?._id}`);
+            console.log(`[NOTIFY] SUCCESS: Notification stored for event ${event_key} with ID: ${noti?._id}`);
+        } else {
+            console.log(`[NOTIFY] SKIP STORAGE: store=${store}, notificationKeys=${Object.keys(notification || {}).length}`);
         }
 
         channel.ack(msg);
