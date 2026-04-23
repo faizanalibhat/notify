@@ -7,25 +7,56 @@ async function notificationHandler(payload, msg, channel) {
     try {
         const { orgId, notification, store, channels = [], authContext, recievers, orgCoverage } = payload;
 
-        let recieversList = recievers ? Array.isArray(recievers) ? recievers : [recievers] : [];
+        let recieversList = recievers ? (Array.isArray(recievers) ? recievers : [recievers]) : [];
+        const actorId = authContext?._id || authContext?.userId;
 
-        // based on the org coverage, populate the reciever with their emails.
+        // resolve roles/teams if orgCoverage is provided
         if (orgCoverage) {
-            let roles = orgCoverage.roles;
-            let teams = orgCoverage.teams;
+            const roles = orgCoverage.roles || [];
+            const teams = orgCoverage.teams || [];
 
-            let recipientsByRoles = await orgMembersResolver.resolveMembersUsingRoles(orgId, roles);
-            let recipientsByTeams = await orgMembersResolver.resolveMembersUsingTeams(orgId, teams);
+            if (roles.length > 0) {
+                const recipientsByRoles = await orgMembersResolver.resolveMembersUsingRoles(orgId, roles);
+                recieversList = [...recieversList, ...recipientsByRoles];
+            }
 
-            recieversList = [...recieversList, ...recipientsByRoles, ...recipientsByTeams];
+            if (teams.length > 0) {
+                const recipientsByTeams = await orgMembersResolver.resolveMembersUsingTeams(orgId, teams);
+                recieversList = [...recieversList, ...recipientsByTeams];
+            }
         }
+
+        // Standardize recipient objects to have email and userId
+        recieversList = recieversList.map(r => ({
+            email: r.email,
+            userId: r.userId || r._id || r.id
+        })).filter(r => r.email);
+
+        // Deduplicate recipients by email
+        const uniqueRecipientsMap = new Map();
+        recieversList.forEach(r => {
+            if (!uniqueRecipientsMap.has(r.email)) {
+                uniqueRecipientsMap.set(r.email, r);
+            }
+        });
+
+        // Originator Exclusion: Filter out the actor who triggered the notification
+        if (actorId) {
+            uniqueRecipientsMap.forEach((val, key) => {
+                if (String(val.userId) === String(actorId)) {
+                    uniqueRecipientsMap.delete(key);
+                }
+            });
+        }
+
+        const finalRecievers = Array.from(uniqueRecipientsMap.values());
 
         // publish to channels with recievers resolved.
         for (let channel of channels) {
-            console.log("[+] SENDING EMAIL EVENT FOR EMAIL ", recieversList);
+            console.log(`[+] SENDING ${channel.toUpperCase()} EVENT FOR ${finalRecievers.length} RECIPIENTS`);
             await mqbroker.publish("notification", `notification.${channel}`, {
                 ...payload,
-                recievers: recieversList,
+                recievers: finalRecievers,
                 event_id: payload.event_id,
                 trace_id: payload.trace_id,
                 template_id: payload.template_id
