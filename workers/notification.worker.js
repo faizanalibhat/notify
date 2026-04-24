@@ -5,12 +5,13 @@ const orgMembersResolver = require("../services/org.resolver");
 
 async function notificationHandler(payload, msg, channel) {
     try {
-        const { orgId, notification, store, channels = [], authContext, recievers, orgCoverage, event_key } = payload;
+        const { orgId, notification, store, channels = [], authContext, orgCoverage, event_key } = payload;
         console.log(`[NOTIFY] Processing event: ${event_key} for Org: ${orgId}`);
 
-        let recieversList = recievers ? (Array.isArray(recievers) ? recievers : [recievers]) : [];
+        let recieversList = payload.recievers || payload.receivers || [];
+        recieversList = Array.isArray(recieversList) ? recieversList : [recieversList];
         const actorId = authContext?._id || authContext?.userId;
-        console.log(`[NOTIFY] Actor: ${actorId}, Initial Recievers: ${recieversList.length}`);
+        console.log(`[NOTIFY] Actor: ${actorId}, Initial Recipients: ${recieversList.length}`);
 
         // resolve roles/teams if orgCoverage is provided
         if (orgCoverage) {
@@ -56,7 +57,8 @@ async function notificationHandler(payload, msg, channel) {
         }
 
         const finalRecievers = Array.from(uniqueRecipientsMap.values());
-        console.log(`[NOTIFY] Total recipients after exclusion: ${finalRecievers.length} (${finalRecievers.map(r => r.email).join(', ')})`);
+        console.log(`[NOTIFY] Total recipients after exclusion: ${finalRecievers.length}`);
+        finalRecievers.forEach(r => console.log(`[NOTIFY] -> Recipient: ${r.email} (ID: ${r.userId})`));
 
         // publish to channels with recievers resolved.
         for (let channel of channels) {
