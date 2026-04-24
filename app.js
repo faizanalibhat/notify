@@ -3,7 +3,9 @@ const bodyParser = require("body-parser");
 const { errorHandler } = require("./middlewares/error");
 const router = require("./routes/index");
 const cors = require("cors");
-const { authenticateService } = require("./middlewares/auth");
+const { authenticateService } = require("./middlewares/auth/index");
+
+const requireAuth = authenticateService();
 const initSwagger = require("./swagger");
 const { appConfig } = require("./config/app.config");
 
@@ -45,7 +47,7 @@ app.get("/notify/internal/activity/:orgId", activityController.getOrgActivityWit
 
 app.use("/notify/test", require("./routes/test.routes"));
 
-app.use("/notify/api", authenticateService(), router);
+app.use("/notify/api", requireAuth, router);
 
 connect();
 
