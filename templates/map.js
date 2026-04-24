@@ -12,6 +12,12 @@ module.exports = [
         type: "email"
     },
     {
+        template_id: "DEMO_OTP",
+        template_path: "/templates/email/DEMO_OTP.hbs",
+        active: true,
+        type: "email"
+    },
+    {
         template_id: "DEMO_CREDENTIALS",
         template_path: "/templates/email/DEMO_CREDENTIALS.hbs",
         active: true,
