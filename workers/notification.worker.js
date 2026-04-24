@@ -5,27 +5,67 @@ const orgMembersResolver = require("../services/org.resolver");
 
 async function notificationHandler(payload, msg, channel) {
     try {
-        const { orgId, notification, store, channels = [], authContext, recievers, orgCoverage } = payload;
+        const { orgId, notification, store, channels = [], authContext, orgCoverage, event_key } = payload;
+        console.log(`[NOTIFY] Processing event: ${event_key} for Org: ${orgId}`);
 
-        let recieversList = recievers ? Array.isArray(recievers) ? recievers : [recievers] : [];
+        let recieversList = payload.recievers || payload.receivers || [];
+        recieversList = Array.isArray(recieversList) ? recieversList : [recieversList];
+        const actorId = authContext?._id || authContext?.userId;
+        console.log(`[NOTIFY] Actor: ${actorId}, Initial Recipients: ${recieversList.length}`);
 
-        // based on the org coverage, populate the reciever with their emails.
+        // resolve roles/teams if orgCoverage is provided
         if (orgCoverage) {
-            let roles = orgCoverage.roles;
-            let teams = orgCoverage.teams;
+            const roles = orgCoverage.roles || [];
+            const teams = orgCoverage.teams || [];
+            console.log(`[NOTIFY] Resolving OrgCoverage: Roles=${JSON.stringify(roles)}, Teams=${JSON.stringify(teams)}`);
 
-            let recipientsByRoles = await orgMembersResolver.resolveMembersUsingRoles(orgId, roles);
-            let recipientsByTeams = await orgMembersResolver.resolveMembersUsingTeams(orgId, teams);
+            if (roles.length > 0) {
+                const recipientsByRoles = await orgMembersResolver.resolveMembersUsingRoles(orgId, roles);
+                console.log(`[NOTIFY] Resolved ${recipientsByRoles.length} members by roles`);
+                recieversList = [...recieversList, ...recipientsByRoles];
+            }
 
-            recieversList = [...recieversList, ...recipientsByRoles, ...recipientsByTeams];
+            if (teams.length > 0) {
+                const recipientsByTeams = await orgMembersResolver.resolveMembersUsingTeams(orgId, teams);
+                console.log(`[NOTIFY] Resolved ${recipientsByTeams.length} members by teams`);
+                recieversList = [...recieversList, ...recipientsByTeams];
+            }
         }
+
+        // Standardize recipient objects to have email and userId
+        recieversList = recieversList.map(r => ({
+            email: r.email,
+            userId: r.userId || r._id || r.id
+        })).filter(r => r.email);
+
+        // Deduplicate recipients by email
+        const uniqueRecipientsMap = new Map();
+        recieversList.forEach(r => {
+            if (!uniqueRecipientsMap.has(r.email)) {
+                uniqueRecipientsMap.set(r.email, r);
+            }
+        });
+
+        // Originator Exclusion: Strictly filter out the actor from both DELIVERY and STORAGE
+        if (actorId) {
+            uniqueRecipientsMap.forEach((val, key) => {
+                if (String(val.userId) === String(actorId)) {
+                    console.log(`[NOTIFY] Strictly excluding Actor ${actorId} from all channels`);
+                    uniqueRecipientsMap.delete(key);
+                }
+            });
+        }
+
+        const finalRecievers = Array.from(uniqueRecipientsMap.values());
+        console.log(`[NOTIFY] Total recipients after exclusion: ${finalRecievers.length}`);
+        finalRecievers.forEach(r => console.log(`[NOTIFY] -> Recipient: ${r.email} (ID: ${r.userId})`));
 
         // publish to channels with recievers resolved.
         for (let channel of channels) {
-            console.log("[+] SENDING EMAIL EVENT FOR EMAIL ", recieversList);
+            console.log(`[NOTIFY] Publishing to channel: ${channel.toUpperCase()}`);
             await mqbroker.publish("notification", `notification.${channel}`, {
                 ...payload,
-                recievers: recieversList,
+                recievers: finalRecievers,
                 event_id: payload.event_id,
                 trace_id: payload.trace_id,
                 template_id: payload.template_id
@@ -34,13 +74,14 @@ async function notificationHandler(payload, msg, channel) {
 
         if (store && Object.keys(notification || {})?.length) {
             // New structure: userIds (owners), actor, target
-            // Check both root payload and nested notification object for owners/userIds
             let userIds = payload.owners || payload.userIds || notification.owners || notification.userIds || [];
             
-            // Fallback: If no owners/userIds provided, try to extract from recieversList
-            if (!userIds.length && recieversList.length) {
-                userIds = [...new Set(recieversList.map(r => r.userId || r._id).filter(id => id))];
+            // Fallback: If no owners/userIds provided, use the filtered list
+            if (!userIds.length && uniqueRecipientsMap.size > 0) {
+                userIds = Array.from(uniqueRecipientsMap.values()).map(r => r.userId).filter(Boolean);
             }
+
+            console.log(`[NOTIFY] Storing notification for UserIDs: ${JSON.stringify(userIds)}`);
 
             let actor = notification.actor;
             if (!actor && authContext) {
@@ -73,13 +114,15 @@ async function notificationHandler(payload, msg, channel) {
             delete obj.user;
 
             const noti = await notificationService.createNotification(orgId, obj);
-            console.log("[+] NOTIFICATION STORED ", noti?._id);
+            console.log(`[NOTIFY] SUCCESS: Notification stored for event ${event_key} with ID: ${noti?._id}`);
+        } else {
+            console.log(`[NOTIFY] SKIP STORAGE: store=${store}, notificationKeys=${Object.keys(notification || {}).length}`);
         }
 
         channel.ack(msg);
     }
     catch (err) {
-        console.log("[+] ERROR WHILE HANDLING EVENT IN NOTIFICATION QUEUE", err.message);
+        console.log("[NOTIFY] FATAL ERROR", err.message);
         return channel.ack(msg);
     }
 }

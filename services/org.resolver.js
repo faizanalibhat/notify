@@ -4,45 +4,25 @@ const { appConfig } = require("../config/app.config");
 
 const resolveAllMembers = async (orgId) => {
     try {
+        console.log(`[NOTIFY] Resolving members for Org: ${orgId} via Auth Service`);
+        const headers = { 'service-api-key': appConfig.SERVICE_KEY };
+        
+        // Correct Internal Route: /api/v1/internal/org/members/:orgId
+        // This internal route returns a flat array in 'data' field: { success: true, message: "...", data: [...] }
+        const baseUrl = `${appConfig.AUTH_SERVICE_URL}/api/v1/internal/org/members/${orgId}`;
 
-        const base = await axios.get(`${appConfig.AUTH_SERVICE_URL}/api/org/members?orgId=${orgId}&page=1&limit=1`, {
-            method: "GET",
-            headers: { 'service-api-key': appConfig.SERVICE_KEY }
-        });
+        const response = await axios.get(baseUrl, { headers });
+        const allUsers = response?.data?.data || [];
 
-        let total = base?.data?.data?.total || 0;
-        let limit = 50;
-
-        let pages = Math.ceil(total/limit);
-
-        let allUsers = [];
-
-        while (pages > 0) {
-            try {
-                let resp = await axios.get(`${appConfig.AUTH_SERVICE_URL}/api/org/members?orgId=${orgId}&page=${pages}&limit=${limit}`, {
-                    method: "GET",
-                    headers: { 'service-api-key': appConfig.SERVICE_KEY }
-                });
-
-                pages -= 1;
-
-                // users
-                let users = resp?.data?.data?.members;
-
-                users = Array.isArray(users) ? users : [];
-
-                allUsers.push(...users);
-            }
-            catch(err) {
-                console.log(err.message);
-                pages -= 1;
-            }
+        if (!Array.isArray(allUsers)) {
+            console.log(`[NOTIFY] Unexpected response format from Auth service:`, JSON.stringify(response?.data));
+            return [];
         }
 
-        return allUsers || [];
-    }
-    catch(err) {
-        console.log(err.message);
+        console.log(`[NOTIFY] Successfully resolved ${allUsers.length} total users`);
+        return allUsers;
+    } catch (err) {
+        console.log(`[NOTIFY] Error resolving members:`, err.message);
         return [];
     }
 }
@@ -71,7 +51,11 @@ const resolveMembersUsingRoles = async (orgId, roles = []) => {
         }
 
         const recipients = members
-        ?.filter(member => roles.includes(member.role))
+        ?.filter(member => {
+            const hasRole = roles.includes(member.role);
+            console.log(`[NOTIFY] Checking member ${member.email}: Role=${member.role}, RequiredRoles=${JSON.stringify(roles)}, Match=${hasRole}`);
+            return hasRole;
+        })
         ?.map(member => ({ email: member?.email, userId: member.userId || member._id }));
 
         return recipients || [];
