@@ -56,7 +56,8 @@ async function notificationHandler(payload, msg, channel) {
         }
 
         const finalRecievers = Array.from(uniqueRecipientsMap.values());
-        console.log(`[NOTIFY] Total recipients after exclusion: ${finalRecievers.length} (${finalRecievers.map(r => r.email).join(', ')})`);
+        console.log(`[NOTIFY] Total recipients after exclusion: ${finalRecievers.length}`);
+        finalRecievers.forEach(r => console.log(`[NOTIFY] -> Recipient: ${r.email} (ID: ${r.userId})`));
 
         // publish to channels with recievers resolved.
         for (let channel of channels) {

@@ -51,7 +51,11 @@ const resolveMembersUsingRoles = async (orgId, roles = []) => {
         }
 
         const recipients = members
-        ?.filter(member => roles.includes(member.role))
+        ?.filter(member => {
+            const hasRole = roles.includes(member.role);
+            console.log(`[NOTIFY] Checking member ${member.email}: Role=${member.role}, RequiredRoles=${JSON.stringify(roles)}, Match=${hasRole}`);
+            return hasRole;
+        })
         ?.map(member => ({ email: member?.email, userId: member.userId || member._id }));
 
         return recipients || [];
