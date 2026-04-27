@@ -144,4 +144,25 @@ const getAllActivity = catchError(async (req, res) => {
 });
 
 
-module.exports = { getAllActivity, getOrgActivityWithStats };
+const getUserActivity = catchError(async (req, res) => {
+    const { email, userId, page = 1, limit = 10, sortBy = 'createdAt', sortAs = 'desc' } = req.query;
+
+    if (!email && !userId) {
+        return res.status(400).json({ message: "email or userId is required" });
+    }
+
+    const filter = {};
+    if (email) {
+        filter["user.email"] = email;
+    }
+    if (userId) {
+        filter["user.id"] = userId; // Assuming userId is stored as user.id
+    }
+
+    const activity = await activityService.queryActivity(filter, page, limit, sortBy, sortAs);
+
+    return res.json(activity);
+});
+
+
+module.exports = { getAllActivity, getOrgActivityWithStats, getUserActivity };

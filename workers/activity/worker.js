@@ -61,7 +61,7 @@ async function activityLogsHandler(payload, msg, channel) {
       resourceMeta,
     } = payload;
 
-    const { orgId, firstName = "", lastName = "", email = "" } = authContext;
+    const { orgId, firstName = "", lastName = "", email = "", userId, id } = authContext;
 
     let endpoint = originalUrl?.split("?")[0] || path;
 
@@ -118,6 +118,7 @@ async function activityLogsHandler(payload, msg, channel) {
       user: {
         name: `${firstName} ${lastName}`.trim(),
         email,
+        id: userId || id,
       },
       orgId,
       action,

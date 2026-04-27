@@ -66,7 +66,7 @@ const createActivity = async (orgId, activity) => {
 const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy = 'createdAt', sortAs = "desc") => {
     try {
         const activity = await Activity.find({ orgId, ...filter }).sort({ [sortBy]: sortAs == 'desc' ? -1 : 1 }).skip((page - 1) * limit).limit(limit);
-        const total = await Activity.countDocuments({ orgId });
+        const total = await Activity.countDocuments({ orgId, ...filter });
 
 
         const supportedFilters = {};
@@ -80,7 +80,20 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
     }
     catch (err) {
         console.log(err);
-        return { status: 'failed', message: "failed to create activity" };
+        return { status: 'failed', message: "failed to fetch activity" };
+    }
+}
+
+const queryActivity = async (filter = {}, page = 1, limit = 10, sortBy = 'createdAt', sortAs = "desc") => {
+    try {
+        const activity = await Activity.find(filter).sort({ [sortBy]: sortAs == 'desc' ? -1 : 1 }).skip((page - 1) * limit).limit(limit);
+        const total = await Activity.countDocuments(filter);
+
+        return { activity, total };
+    }
+    catch (err) {
+        console.log(err);
+        return { status: 'failed', message: "failed to query activity" };
     }
 }
 
@@ -90,4 +103,5 @@ module.exports = {
     parseActivity,
     createActivity,
     getAllActivity,
+    queryActivity
 }
