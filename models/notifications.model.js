@@ -13,7 +13,7 @@ const targetSchema = new mongoose.Schema({
     type: { type: String },
     title: { type: String },
     url: { type: String }
-}, { _id: false });
+}, { _id: false, strict: false });
 
 const resourceMeta = new mongoose.Schema({
     product: { type: String },
