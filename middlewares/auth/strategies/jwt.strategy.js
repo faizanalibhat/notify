@@ -20,12 +20,10 @@ const execute = async (req, options = {}) => {
   if (decodedToken.type === "intermediary") throw new Error("Intermediary token cannot be used to access protected APIs");
 
   if (decodedToken.licenceExpiry && new Date(decodedToken.licenceExpiry) < new Date()) {
-    if (!["Admin", "Super"].includes(decodedToken.role)) {
-      const error = new Error("License has expired");
-      error.code = "LICENSE_EXPIRED";
-      error.licenseExpiry = decodedToken.licenceExpiry;
-      throw error;
-    }
+    const error = new Error("License has expired");
+    error.code = "LICENSE_EXPIRED";
+    error.licenseExpiry = decodedToken.licenceExpiry;
+    throw error;
   }
 
   if (options.requiredOrgAccess && decodedToken.orgAccess && !decodedToken.orgAccess.includes(options.requiredOrgAccess)) {
