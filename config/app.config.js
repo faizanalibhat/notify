@@ -26,6 +26,7 @@ const appConfig = {
     TM_SERVICE_URL: Config.get("TM_SERVICE_URL", "http://tm"),
     ASSET_INVENTORY_SERVICE_URL: Config.get("ASSET_INVENTORY_SERVICE_URL", "http://asset-inventory"),
     NOTIFY_SERVICE_URL: Config.get("NOTIFY_SERVICE_URL", "http://notify"),
+    LOGO_URL: Config.get("LOGO_URL", "https://suite.snapsec.co/media/logos/snapsec.svg"),
 }
 
 
