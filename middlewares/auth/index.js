@@ -37,7 +37,7 @@ const strategies = {
  * Standard roles hierarchy (highest to lowest)
  * Super > Admin > Manager > Member
  */
-const ROLE_HIERARCHY = ["Super", "Admin", "Manager", "Developer", "Auditor", "Member"];
+const ROLE_HIERARCHY = ["Super", "Admin", "Manager", "Developer", "Auditor"];
 
 /**
  * Authentication middleware factory
@@ -170,7 +170,7 @@ const requireAdmin = auth({
  */
 const requireMember = auth({
 	mode: ["internal", "jwt", "api_key"],
-	roles: ["Super", "Admin", "Manager", "Member", "Developer"],
+	roles: ["Super", "Admin", "Manager", "Developer"],
 });
 
 /**
