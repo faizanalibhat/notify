@@ -30,12 +30,12 @@ jobs:
 
       - name: Push SAST results to Snapsec
         env:
-          SNAPSEC_ASSESSMENT_ID: ${{ secrets.TRIVY_SAST_ASSESSMENT_ID }}
+          SNAPSEC_TRIVY_CONFIGURATION_SCANNING_WEBHOOK: ${{ secrets.SNAPSEC_TRIVY_CONFIGURATION_SCANNING_WEBHOOK }}
           SNAPSEC_API_KEY: ${{ secrets.SNAPSEC_API_KEY }}
         run: |
           if [ -f trivy-sast-results.json ]; then
             echo "Pushing Trivy SAST results to Snapsec..."
-            curl -X POST "https://suite.snapsec.co/csm/api/import/${SNAPSEC_ASSESSMENT_ID}/trivy-repo" \
+            curl -X POST "${SNAPSEC_TRIVY_CONFIGURATION_SCANNING_WEBHOOK}" \
                  -H "x-api-key: ${SNAPSEC_API_KEY}" \
                  -H "Content-Type: application/json" \
                  -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
@@ -54,12 +54,12 @@ jobs:
 
       - name: Push Secret results to Snapsec
         env:
-          SNAPSEC_ASSESSMENT_ID: ${{ secrets.TRIVY_SECRET_ASSESSMENT_ID }}
+          SNAPSEC_TRIVY_SECRET_SCANNING_WEBHOOK: ${{ secrets.SNAPSEC_TRIVY_SECRET_SCANNING_WEBHOOK }}
           SNAPSEC_API_KEY: ${{ secrets.SNAPSEC_API_KEY }}
         run: |
           if [ -f trivy-secret-results.json ]; then
             echo "Pushing Trivy Secret results to Snapsec..."
-            curl -X POST "https://suite.snapsec.co/csm/api/import/${SNAPSEC_ASSESSMENT_ID}/trivy-repo" \
+            curl -X POST "${SNAPSEC_TRIVY_SECRET_SCANNING_WEBHOOK}" \
                  -H "x-api-key: ${SNAPSEC_API_KEY}" \
                  -H "Content-Type: application/json" \
                  -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
@@ -89,12 +89,12 @@ jobs:
 
       - name: Push Image results to Snapsec
         env:
-          SNAPSEC_ASSESSMENT_ID: ${{ secrets.TRIVY_IMAGE_ASSESSMENT_ID }}
+          SNAPSEC_TRIVY_IMAGE_SCANNING_WEBHOOK: ${{ secrets.SNAPSEC_TRIVY_IMAGE_SCANNING_WEBHOOK }}
           SNAPSEC_API_KEY: ${{ secrets.SNAPSEC_API_KEY }}
         run: |
           if [ -f trivy-image-results.json ]; then
             echo "Pushing Trivy Image results to Snapsec..."
-            curl -X POST "https://suite.snapsec.co/csm/api/import/${SNAPSEC_ASSESSMENT_ID}/trivy-image" \
+            curl -X POST "${SNAPSEC_TRIVY_IMAGE_SCANNING_WEBHOOK}" \
                  -H "x-api-key: ${SNAPSEC_API_KEY}" \
                  -H "Content-Type: application/json" \
                  -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
