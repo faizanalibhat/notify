@@ -13,7 +13,7 @@ const targetSchema = new mongoose.Schema({
     type: { type: String },
     title: { type: String },
     url: { type: String }
-}, { _id: false });
+}, { _id: false, strict: false });
 
 const resourceMeta = new mongoose.Schema({
     product: { type: String },
@@ -34,7 +34,7 @@ const notificationSchema = new mongoose.Schema({
     resourceUrl: { type: String },
     actor: { type: actorSchema },
     target: { type: targetSchema },
-    context: { type: targetSchema },
+    context: { type: mongoose.Schema.Types.Mixed },
     event_key: { type: String },
     ui_context: { type: mongoose.Schema.Types.Mixed },
     resourceMeta: { type: resourceMeta },
