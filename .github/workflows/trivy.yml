@@ -1,0 +1,103 @@
+name: Trivy Scan
+
+on:
+  workflow_run:
+    workflows: ["Deploy Notify Service"]
+    branches: [ master ]
+    types:
+      - completed
+
+env:
+  SERVICE_NAME: notify
+  REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  trivy-scan:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 1. SAST Scan (Misconfigurations)
+      - name: Run Trivy SAST scanner
+        uses: aquasecurity/trivy-action@v0.24.0
+        with:
+          scan-type: 'fs'
+          scanners: 'config'
+          format: 'json'
+          output: 'trivy-sast-results.json'
+
+      - name: Push SAST results to Snapsec
+        env:
+          SNAPSEC_TRIVY_CONFIGURATION_SCANNING_WEBHOOK: ${{ secrets.SNAPSEC_TRIVY_CONFIGURATION_SCANNING_WEBHOOK }}
+          SNAPSEC_API_KEY: ${{ secrets.SNAPSEC_API_KEY }}
+        run: |
+          if [ -f trivy-sast-results.json ]; then
+            echo "Pushing Trivy SAST results to Snapsec..."
+            curl -X POST "${SNAPSEC_TRIVY_CONFIGURATION_SCANNING_WEBHOOK}" \
+                 -H "x-api-key: ${SNAPSEC_API_KEY}" \
+                 -H "Content-Type: application/json" \
+                 -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
+                 -d @trivy-sast-results.json \
+                 -k
+          fi
+
+      # 2. Secret Scan
+      - name: Run Trivy Secret scanner
+        uses: aquasecurity/trivy-action@v0.24.0
+        with:
+          scan-type: 'fs'
+          scanners: 'secret'
+          format: 'json'
+          output: 'trivy-secret-results.json'
+
+      - name: Push Secret results to Snapsec
+        env:
+          SNAPSEC_TRIVY_SECRET_SCANNING_WEBHOOK: ${{ secrets.SNAPSEC_TRIVY_SECRET_SCANNING_WEBHOOK }}
+          SNAPSEC_API_KEY: ${{ secrets.SNAPSEC_API_KEY }}
+        run: |
+          if [ -f trivy-secret-results.json ]; then
+            echo "Pushing Trivy Secret results to Snapsec..."
+            curl -X POST "${SNAPSEC_TRIVY_SECRET_SCANNING_WEBHOOK}" \
+                 -H "x-api-key: ${SNAPSEC_API_KEY}" \
+                 -H "Content-Type: application/json" \
+                 -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
+                 -d @trivy-secret-results.json \
+                 -k
+          fi
+
+      # 3. Image Scan (Vulnerabilities)
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Run Trivy Image scanner
+        uses: aquasecurity/trivy-action@v0.24.0
+        env:
+          TRIVY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          TRIVY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+        with:
+          image-ref: 'ghcr.io/${{ github.repository_owner }}/${{ env.SERVICE_NAME }}:master'
+          scan-type: 'image'
+          scanners: 'vuln'
+          format: 'json'
+          output: 'trivy-image-results.json'
+
+      - name: Push Image results to Snapsec
+        env:
+          SNAPSEC_TRIVY_IMAGE_SCANNING_WEBHOOK: ${{ secrets.SNAPSEC_TRIVY_IMAGE_SCANNING_WEBHOOK }}
+          SNAPSEC_API_KEY: ${{ secrets.SNAPSEC_API_KEY }}
+        run: |
+          if [ -f trivy-image-results.json ]; then
+            echo "Pushing Trivy Image results to Snapsec..."
+            curl -X POST "${SNAPSEC_TRIVY_IMAGE_SCANNING_WEBHOOK}" \
+                 -H "x-api-key: ${SNAPSEC_API_KEY}" \
+                 -H "Content-Type: application/json" \
+                 -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
+                 -d @trivy-image-results.json \
+                 -k
+          fi
