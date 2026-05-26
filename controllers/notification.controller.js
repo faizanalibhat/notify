@@ -33,7 +33,13 @@ const getAllNotifications = async (req, res) => {
 
     const filter = {};
 
-    if (origin && origin != "all") filter.origin = origin;
+    if (origin && origin != "all") {
+        if (origin === "mentions") {
+            filter.notificationType = "mention";
+        } else {
+            filter.origin = origin;
+        }
+    }
     
     if (unread) filter.unread = unread;
 
@@ -87,10 +93,16 @@ const markAllAsSeen = async (req, res) => {
     const { orgId, _id: userId } = req.authenticatedService;
     const { origin } = req.body;
 
-    let finalOrigin = origin;
-    if (finalOrigin == "all") finalOrigin = null;
+    let filter = {};
+    if (origin && origin !== "all") {
+        if (origin === "mentions") {
+            filter.notificationType = "mention";
+        } else {
+            filter.origin = origin;
+        }
+    }
 
-    await notificationService.markAllAsSeen(orgId, userId, finalOrigin);
+    await notificationService.markAllAsSeen(orgId, userId, filter);
 
     return res.json({ success: true, message: "success" });
 }
