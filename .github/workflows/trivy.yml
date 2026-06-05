@@ -101,3 +101,28 @@ jobs:
                  -d @trivy-image-results.json \
                  -k
           fi
+
+      # 4. TruffleHog Scan
+      - name: Install TruffleHog
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b .
+
+      - name: Run TruffleHog Secret Scanner
+        run: |
+          ./trufflehog git file://. --only-verified --json > trufflehog-results.json || true
+
+      - name: Push TruffleHog results to Snapsec
+        env:
+          SNAPSEC_TRUFFLEHOG_WEBHOOK: ${{ secrets.SNAPSEC_TRUFFLEHOG_WEBHOOK }}
+          SNAPSEC_API_KEY: ${{ secrets.SNAPSEC_API_KEY }}
+        run: |
+          if [ -f trufflehog-results.json ]; then
+            echo "Pushing TruffleHog results to Snapsec..."
+            curl -X POST "${SNAPSEC_TRUFFLEHOG_WEBHOOK}" \
+                 -H "x-api-key: ${SNAPSEC_API_KEY}" \
+                 -H "Content-Type: application/json" \
+                 -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
+                 -d @trufflehog-results.json \
+                 -k
+          fi
+
