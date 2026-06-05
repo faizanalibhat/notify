@@ -53,6 +53,7 @@ const getAllNotifications = async (orgId, userId, filter = {}, page = 1, limit =
 
         // Apply other filters if any
         if (filter.origin) query.origin = filter.origin;
+        if (filter.notificationType) query.notificationType = filter.notificationType;
 
         const notifications = await Notification.find(query)
             .sort({ createdAt: -1 })
@@ -96,6 +97,7 @@ const getAllNotifications = async (orgId, userId, filter = {}, page = 1, limit =
                 seenBy: n.seenBy || [],
                 seen: n.seenBy ? n.seenBy.includes(userId) : false,
                 origin: n.origin,
+                notificationType: n.notificationType,
                 event_key: n.event_key,
                 title_html: n.title_html,
                 createdAt: n.createdAt
@@ -128,10 +130,9 @@ const markNotificationSeen = async (orgId, userId, notificationId) => {
     }
 };
 
-const markAllAsSeen = async (orgId, userId, origin) => {
+const markAllAsSeen = async (orgId, userId, filter = {}) => {
     try {
-        const query = { orgId, userIds: userId };
-        if (origin) query.origin = origin;
+        const query = { orgId, userIds: userId, ...filter };
 
         const updated = await Notification.updateMany(
             query,

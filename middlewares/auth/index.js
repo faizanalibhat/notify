@@ -37,7 +37,7 @@ const strategies = {
  * Standard roles hierarchy (highest to lowest)
  * Super > Admin > Manager > Member
  */
-const ROLE_HIERARCHY = ["Super", "Admin", "Manager", "Developer", "Auditor", "Member"];
+const ROLE_HIERARCHY = ["Super", "Admin", "Manager", "Developer", "Auditor"];
 
 /**
  * Authentication middleware factory
@@ -107,7 +107,11 @@ function auth(options = {}) {
 				return next();
 			} catch (err) {
 				lastError = err;
-				// Continue to next strategy
+				// If credentials were provided but invalid/expired, do not fall back to other strategies.
+				if (err && err.message && !err.message.includes("missing")) {
+					break;
+				}
+				// Otherwise, missing credentials → continue to next strategy
 			}
 		}
 
@@ -166,7 +170,7 @@ const requireAdmin = auth({
  */
 const requireMember = auth({
 	mode: ["internal", "jwt", "api_key"],
-	roles: ["Super", "Admin", "Manager", "Member", "Developer"],
+	roles: ["Super", "Admin", "Manager", "Developer"],
 });
 
 /**

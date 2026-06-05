@@ -26,14 +26,24 @@ const getPeriodStartDate = (period) => {
 const getAllNotifications = async (req, res) => {
     const { orgId, _id: userId } = req.authenticatedService;
 
-    const { origin, unread, search, period } = req.query;
+    const { origin, unread, search, period, notificationType } = req.query;
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
     const filter = {};
 
-    if (origin && origin != "all") filter.origin = origin;
+    if (origin && origin != "all") {
+        if (origin === "mentions") {
+            filter.notificationType = "mention";
+        } else {
+            filter.origin = origin;
+        }
+    }
+
+    if (notificationType) {
+        filter.notificationType = notificationType;
+    }
     
     if (unread) filter.unread = unread;
 
@@ -55,7 +65,7 @@ const getAllNotifications = async (req, res) => {
     }
 
     for (let [key, val] of Object.entries(req.query)) {
-        if (!['page', 'limit', 'origin', 'unread', 'search', 'period'].includes(key)) {
+        if (!['page', 'limit', 'origin', 'unread', 'search', 'period', 'notificationType'].includes(key)) {
             if (!val) continue;
 
             if (key == 'product') {
@@ -87,10 +97,16 @@ const markAllAsSeen = async (req, res) => {
     const { orgId, _id: userId } = req.authenticatedService;
     const { origin } = req.body;
 
-    let finalOrigin = origin;
-    if (finalOrigin == "all") finalOrigin = null;
+    let filter = {};
+    if (origin && origin !== "all") {
+        if (origin === "mentions") {
+            filter.notificationType = "mention";
+        } else {
+            filter.origin = origin;
+        }
+    }
 
-    await notificationService.markAllAsSeen(orgId, userId, finalOrigin);
+    await notificationService.markAllAsSeen(orgId, userId, filter);
 
     return res.json({ success: true, message: "success" });
 }
