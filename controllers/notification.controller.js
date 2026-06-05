@@ -26,7 +26,7 @@ const getPeriodStartDate = (period) => {
 const getAllNotifications = async (req, res) => {
     const { orgId, _id: userId } = req.authenticatedService;
 
-    const { origin, unread, search, period } = req.query;
+    const { origin, unread, search, period, notificationType } = req.query;
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -39,6 +39,10 @@ const getAllNotifications = async (req, res) => {
         } else {
             filter.origin = origin;
         }
+    }
+
+    if (notificationType) {
+        filter.notificationType = notificationType;
     }
     
     if (unread) filter.unread = unread;
@@ -61,7 +65,7 @@ const getAllNotifications = async (req, res) => {
     }
 
     for (let [key, val] of Object.entries(req.query)) {
-        if (!['page', 'limit', 'origin', 'unread', 'search', 'period'].includes(key)) {
+        if (!['page', 'limit', 'origin', 'unread', 'search', 'period', 'notificationType'].includes(key)) {
             if (!val) continue;
 
             if (key == 'product') {
