@@ -72,14 +72,14 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Trivy Image scanner
         uses: aquasecurity/trivy-action@v0.24.0
         env:
-          TRIVY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
-          TRIVY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         with:
           image-ref: 'ghcr.io/${{ github.repository_owner }}/${{ env.SERVICE_NAME }}:master'
           scan-type: 'image'
@@ -126,3 +126,66 @@ jobs:
                  -k
           fi
 
+      # 5. Dependency-Check Scan
+      - name: Run OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: ${{ env.SERVICE_NAME }}
+          path: '.'
+          format: 'JSON'
+          out: 'dependency-check-report.json'
+
+      - name: Push Dependency-Check results to Snapsec
+        env:
+          SNAPSEC_DEPCHECK_WEBHOOK: ${{ secrets.SNAPSEC_DEPCHECK_WEBHOOK }}
+          SNAPSEC_API_KEY: ${{ secrets.SNAPSEC_API_KEY }}
+        run: |
+          if [ -f dependency-check-report.json ]; then
+            echo "Pushing Dependency-Check results to Snapsec..."
+            curl -X POST "${SNAPSEC_DEPCHECK_WEBHOOK}" \
+                 -H "x-api-key: ${SNAPSEC_API_KEY}" \
+                 -H "Content-Type: application/json" \
+                 -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
+                 -d @dependency-check-report.json \
+                 -k
+          fi
+
+      # 6. npm audit Scan
+      - name: Run npm audit
+        run: npm audit --json > npm-audit-report.json || true
+
+      - name: Push npm audit results to Snapsec
+        env:
+          SNAPSEC_NPMAUDIT_WEBHOOK: ${{ secrets.SNAPSEC_NPMAUDIT_WEBHOOK }}
+          SNAPSEC_API_KEY: ${{ secrets.SNAPSEC_API_KEY }}
+        run: |
+          if [ -f npm-audit-report.json ]; then
+            echo "Pushing npm audit results to Snapsec..."
+            curl -X POST "${SNAPSEC_NPMAUDIT_WEBHOOK}" \
+                 -H "x-api-key: ${SNAPSEC_API_KEY}" \
+                 -H "Content-Type: application/json" \
+                 -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
+                 -d @npm-audit-report.json \
+                 -k
+          fi
+
+      # 7. TruffleHog Secret Scan
+      - name: Run TruffleHog
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/pwd trufflesecurity/trufflehog:latest git file:///pwd --only-verified --json > trufflehog-report.json || true
+          jq -s '.' trufflehog-report.json > trufflehog-array.json
+
+      - name: Push TruffleHog results to Snapsec
+        env:
+          SNAPSEC_TRUFFLEHOG_WEBHOOK: ${{ secrets.SNAPSEC_TRUFFLEHOG_WEBHOOK }}
+          SNAPSEC_API_KEY: ${{ secrets.SNAPSEC_API_KEY }}
+        run: |
+          if [ -f trufflehog-array.json ]; then
+            echo "Pushing TruffleHog results to Snapsec..."
+            curl -X POST "${SNAPSEC_TRUFFLEHOG_WEBHOOK}" \
+                 -H "x-api-key: ${SNAPSEC_API_KEY}" \
+                 -H "Content-Type: application/json" \
+                 -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
+                 -d @trufflehog-array.json \
+                 -k
+          fi
