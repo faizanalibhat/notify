@@ -35,11 +35,13 @@ jobs:
         run: |
           if [ -f trivy-sast-results.json ]; then
             echo "Pushing Trivy SAST results to Snapsec..."
+            gzip -c trivy-sast-results.json > trivy-sast-results.json.gz
             curl -X POST "${SNAPSEC_TRIVY_CONFIGURATION_SCANNING_WEBHOOK}" \
                  -H "x-api-key: ${SNAPSEC_API_KEY}" \
+                 -H "Content-Encoding: gzip" \
                  -H "Content-Type: application/json" \
-                 -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
-                 -d @trivy-sast-results.json \
+                 -H "x-affected-asset: ${{ github.repository }}" \
+                 --data-binary @trivy-sast-results.json.gz \
                  -k
           fi
 
@@ -59,11 +61,13 @@ jobs:
         run: |
           if [ -f trivy-secret-results.json ]; then
             echo "Pushing Trivy Secret results to Snapsec..."
+            gzip -c trivy-secret-results.json > trivy-secret-results.json.gz
             curl -X POST "${SNAPSEC_TRIVY_SECRET_SCANNING_WEBHOOK}" \
                  -H "x-api-key: ${SNAPSEC_API_KEY}" \
+                 -H "Content-Encoding: gzip" \
                  -H "Content-Type: application/json" \
-                 -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
-                 -d @trivy-secret-results.json \
+                 -H "x-affected-asset: ${{ github.repository }}" \
+                 --data-binary @trivy-secret-results.json.gz \
                  -k
           fi
 
@@ -94,35 +98,13 @@ jobs:
         run: |
           if [ -f trivy-image-results.json ]; then
             echo "Pushing Trivy Image results to Snapsec..."
+            gzip -c trivy-image-results.json > trivy-image-results.json.gz
             curl -X POST "${SNAPSEC_TRIVY_IMAGE_SCANNING_WEBHOOK}" \
                  -H "x-api-key: ${SNAPSEC_API_KEY}" \
+                 -H "Content-Encoding: gzip" \
                  -H "Content-Type: application/json" \
-                 -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
-                 -d @trivy-image-results.json \
-                 -k
-          fi
-
-      # 4. TruffleHog Scan
-      - name: Install TruffleHog
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b .
-
-      - name: Run TruffleHog Secret Scanner
-        run: |
-          ./trufflehog git file://. --only-verified --json > trufflehog-results.json || true
-
-      - name: Push TruffleHog results to Snapsec
-        env:
-          SNAPSEC_TRUFFLEHOG_WEBHOOK: ${{ secrets.SNAPSEC_TRUFFLEHOG_WEBHOOK }}
-          SNAPSEC_API_KEY: ${{ secrets.SNAPSEC_API_KEY }}
-        run: |
-          if [ -f trufflehog-results.json ]; then
-            echo "Pushing TruffleHog results to Snapsec..."
-            curl -X POST "${SNAPSEC_TRUFFLEHOG_WEBHOOK}" \
-                 -H "x-api-key: ${SNAPSEC_API_KEY}" \
-                 -H "Content-Type: application/json" \
-                 -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
-                 -d @trufflehog-results.json \
+                 -H "x-affected-asset: ${{ github.repository }}" \
+                 --data-binary @trivy-image-results.json.gz \
                  -k
           fi
 
@@ -142,11 +124,13 @@ jobs:
         run: |
           if [ -f dependency-check-report.json ]; then
             echo "Pushing Dependency-Check results to Snapsec..."
+            gzip -c dependency-check-report.json > dependency-check-report.json.gz
             curl -X POST "${SNAPSEC_DEPCHECK_WEBHOOK}" \
                  -H "x-api-key: ${SNAPSEC_API_KEY}" \
+                 -H "Content-Encoding: gzip" \
                  -H "Content-Type: application/json" \
-                 -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
-                 -d @dependency-check-report.json \
+                 -H "x-affected-asset: ${{ github.repository }}" \
+                 --data-binary @dependency-check-report.json.gz \
                  -k
           fi
 
@@ -161,11 +145,13 @@ jobs:
         run: |
           if [ -f npm-audit-report.json ]; then
             echo "Pushing npm audit results to Snapsec..."
+            gzip -c npm-audit-report.json > npm-audit-report.json.gz
             curl -X POST "${SNAPSEC_NPMAUDIT_WEBHOOK}" \
                  -H "x-api-key: ${SNAPSEC_API_KEY}" \
+                 -H "Content-Encoding: gzip" \
                  -H "Content-Type: application/json" \
-                 -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
-                 -d @npm-audit-report.json \
+                 -H "x-affected-asset: ${{ github.repository }}" \
+                 --data-binary @npm-audit-report.json.gz \
                  -k
           fi
 
@@ -182,10 +168,12 @@ jobs:
         run: |
           if [ -f trufflehog-array.json ]; then
             echo "Pushing TruffleHog results to Snapsec..."
+            gzip -c trufflehog-array.json > trufflehog-array.json.gz
             curl -X POST "${SNAPSEC_TRUFFLEHOG_WEBHOOK}" \
                  -H "x-api-key: ${SNAPSEC_API_KEY}" \
+                 -H "Content-Encoding: gzip" \
                  -H "Content-Type: application/json" \
-                 -H "x-affected-asset: ${{ env.SERVICE_NAME }}" \
-                 -d @trufflehog-array.json \
+                 -H "x-affected-asset: ${{ github.repository }}" \
+                 --data-binary @trufflehog-array.json.gz \
                  -k
           fi
