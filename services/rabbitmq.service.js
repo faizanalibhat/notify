@@ -13,7 +13,12 @@ class RabbitMQ {
             fanout: 'fanout'
         };
         this.url = buildRabbitmqUrl();
-        this.connect();
+        this.reconnectAttempt = 0;
+        this.reconnectPromise = null;
+        this.connect().catch((err) => {
+            console.error('Initial RabbitMQ connection failed:', err.message);
+            this.reconnect();
+        });
     }
 
     static getInstance() {
@@ -23,122 +28,140 @@ class RabbitMQ {
         return RabbitMQ.instance;
     }
 
-    async reconnect(attempt = 1, maxAttempts = 10) {
-        if (attempt > maxAttempts) {
+    handleDisconnect() {
+        if (this.connection) {
+            try {
+                this.connection.removeAllListeners();
+                this.connection.close();
+            } catch (err) {
+                // Ignore close errors
+            }
+            this.connection = null;
+        }
+        this.publishChannel = null;
+        this.consumerChannels.clear();
+        this.reconnect();
+    }
+
+    reconnect() {
+        if (this.reconnectPromise) {
+            return this.reconnectPromise;
+        }
+
+        this.reconnectPromise = (async () => {
+            const maxAttempts = 10;
+            while (this.reconnectAttempt < maxAttempts) {
+                this.reconnectAttempt++;
+                const delay = Math.min(1000 * 2 ** this.reconnectAttempt, 30000); // Exponential backoff, max 30s
+                console.log(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempt})...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                try {
+                    await this.connect();
+                    this.reconnectAttempt = 0;
+                    this.reconnectPromise = null;
+                    return;
+                } catch (err) {
+                    console.error(`Reconnection failed (attempt ${this.reconnectAttempt}):`, err.message);
+                }
+            }
             console.error('Max reconnection attempts reached. Shutting down.');
-            process.exit(1); // Graceful shutdown; adjust as needed
-        }
-        const delay = Math.min(1000 * 2 ** attempt, 30000); // Exponential backoff, max 30s
-        console.log(`Reconnecting in ${delay}ms (attempt ${attempt})...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        try {
-            await this.connect();
-        } catch (err) {
-            console.error('Reconnection failed:', err.message);
-            await this.reconnect(attempt + 1, maxAttempts);
-        }
+            process.exit(1);
+        })();
+
+        return this.reconnectPromise;
     }
 
     async createPublishChannel() {
-        try {
-            if (this.publishChannel) return;
+        if (this.publishChannel) return;
 
-            this.publishChannel = await this.connection.createConfirmChannel();
+        this.publishChannel = await this.connection.createConfirmChannel();
 
-            this.publishChannel.on('error', (err) => {
-                console.error('Publish channel error:', err.message);
-                this.publishChannel = null;
-                this.recreatePublishChannel();
-            });
+        this.publishChannel.on('error', (err) => {
+            console.error('Publish channel error:', err.message);
+            this.publishChannel = null;
+            this.handleDisconnect();
+        });
 
-            this.publishChannel.on('close', () => {
-                console.log('Publish channel closed');
-                this.publishChannel = null;
-                this.recreatePublishChannel();
-            });
-        } catch (error) {
-            console.error('Failed to create publish channel:', error.message);
-            await this.reconnect();
-        }
-    }
-
-    async recreatePublishChannel() {
-        await this.reconnect();
+        this.publishChannel.on('close', () => {
+            console.log('Publish channel closed');
+            this.publishChannel = null;
+            this.handleDisconnect();
+        });
     }
 
     async createConsumerChannel(consumerTag) {
-        try {
-            const channel = await this.connection.createChannel();
-            await channel.prefetch(10); // Limit to 10 unacknowledged messages per consumer
+        const channel = await this.connection.createChannel();
+        await channel.prefetch(10); // Limit to 10 unacknowledged messages per consumer
 
-            channel.on('error', (err) => {
-                console.error(`Consumer channel error (${consumerTag}):`, err.message);
-                this.consumerChannels.delete(consumerTag);
-                this.recreateConsumerChannel(consumerTag);
-            });
+        channel.on('error', (err) => {
+            console.error(`Consumer channel error (${consumerTag}):`, err.message);
+            this.consumerChannels.delete(consumerTag);
+            this.handleDisconnect();
+        });
 
-            channel.on('close', () => {
-                console.log(`Consumer channel closed (${consumerTag})`);
-                this.consumerChannels.delete(consumerTag);
-                this.recreateConsumerChannel(consumerTag);
-            });
+        channel.on('close', () => {
+            console.log(`Consumer channel closed (${consumerTag})`);
+            this.consumerChannels.delete(consumerTag);
+            this.handleDisconnect();
+        });
 
-            this.consumerChannels.set(consumerTag, channel);
-            return channel;
-        } catch (error) {
-            console.error(`Failed to create consumer channel (${consumerTag}):`, error.message);
-            await this.reconnect();
-        }
-    }
-
-    async recreateConsumerChannel(consumerTag) {
-        await this.reconnect();
+        this.consumerChannels.set(consumerTag, channel);
+        return channel;
     }
 
     async connect() {
-        try {
-            if (this.connection && this.publishChannel) return;
+        if (this.connection && this.publishChannel) return;
 
-            this.connection = await amqp.connect(this.url);
-            console.log('[+] Connected to RabbitMQ...');
-
-            this.connection.on('error', (err) => {
-                console.error('RabbitMQ Connection Error:', err.message);
-                this.connection = null;
-                this.publishChannel = null;
-                this.consumerChannels.clear();
-                this.reconnect();
-            });
-
-            this.connection.on('close', () => {
-                console.error('RabbitMQ connection closed');
-                this.connection = null;
-                this.publishChannel = null;
-                this.consumerChannels.clear();
-                this.reconnect();
-            });
-
-            await this.createPublishChannel();
-            // Restart consumers
-            await this.restartConsumers();
-        } catch (error) {
-            console.error('Failed to connect to RabbitMQ:', error.message);
-            await this.reconnect();
+        if (this.connection) {
+            try {
+                this.connection.removeAllListeners();
+                await this.connection.close();
+            } catch (err) {
+                // Ignore close error
+            }
+            this.connection = null;
         }
+
+        this.connection = await amqp.connect(this.url);
+        console.log('[+] Connected to RabbitMQ...');
+
+        this.connection.on('error', (err) => {
+            console.error('RabbitMQ Connection Error:', err.message);
+            this.handleDisconnect();
+        });
+
+        this.connection.on('close', () => {
+            console.log('RabbitMQ connection closed');
+            this.handleDisconnect();
+        });
+
+        await this.createPublishChannel();
+        // Restart consumers
+        await this.restartConsumers();
     }
 
     async restartConsumers() {
         const consumers = [...this.consumers]; // Copy to avoid mutation issues
         this.consumers = [];
         this.consumerChannels.clear();
-        for (const consumer of consumers) {
-            if (consumer.method === 'consume') {
-                await this.consume(consumer.exchange, consumer.bindingKey, consumer.callback, consumer.queueName);
-            } else if (consumer.method === 'receive') {
-                await this.receive(consumer.queue, consumer.callback);
-            } else if (consumer.method === 'intercept') {
-                await this.intercept(consumer.exchange, consumer.callback);
+        let i = 0;
+        try {
+            for (; i < consumers.length; i++) {
+                const consumer = consumers[i];
+                if (consumer.method === 'consume') {
+                    await this.consume(consumer.exchange, consumer.bindingKey, consumer.callback, consumer.queueName);
+                } else if (consumer.method === 'receive') {
+                    await this.receive(consumer.queue, consumer.callback);
+                } else if (consumer.method === 'intercept') {
+                    await this.intercept(consumer.exchange, consumer.callback);
+                }
             }
+        } catch (error) {
+            // Restore unprocessed consumers back to this.consumers
+            for (let j = i; j < consumers.length; j++) {
+                this.consumers.push(consumers[j]);
+            }
+            throw error;
         }
     }
 
@@ -236,18 +259,16 @@ class RabbitMQ {
     // Internal helper for asserting queues
     async _assertQueue(queue, type, options, channel) {
         if (!channel) {
-            await this.reconnect();
+            throw new Error('Channel is not initialized.');
         }
-        if (!channel) throw new Error('Channel is not initialized.');
         await channel.assertQueue(queue, options);
     }
 
     // Internal helper for asserting exchanges
     async _assertExchange(exchange, type, options, channel) {
         if (!channel) {
-            await this.reconnect();
+            throw new Error('Channel is not initialized.');
         }
-        if (!channel) throw new Error('Channel is not initialized.');
         await channel.assertExchange(exchange, type, options);
     }
 }
