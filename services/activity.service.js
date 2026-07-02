@@ -81,8 +81,8 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
 
         // 1. Product Filter
         advanced_filters.push({
-            name: "Product",
-            key: "product",
+            name: "Origin",
+            key: "origin",
             description: "Filter activity by product",
             filters: [
                 { label: "ASM", value: "ASM" },
@@ -100,7 +100,7 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
             .map(email => ({ label: email, value: email }));
         advanced_filters.push({
             name: "User Email",
-            key: "email",
+            key: "user.email",
             description: "Filter activity by user email",
             filters: emailFilters
         });
