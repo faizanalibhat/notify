@@ -85,11 +85,11 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
             key: "origin",
             description: "Filter activity by product",
             filters: [
-                { label: "ASM", value: "ASM" },
-                { label: "VM", value: "VM" },
-                { label: "AIM", value: "AIM" },
-                { label: "VS", value: "VS" },
-                { label: "WAS", value: "WAS" },
+                { label: "ASM", value: "asm" },
+                { label: "VM", value: "vm" },
+                { label: "AIM", value: "aim" },
+                { label: "VS", value: "vs" },
+                { label: "WAS", value: "was" },
             ]
         });
 
