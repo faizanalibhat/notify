@@ -76,7 +76,64 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
         supportedFilters.actionType = await Activity.distinct('resourceMeta.actionType', { orgId: orgId });
         supportedFilters.method = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
 
-        return { activity, total, filters: supportedFilters };
+        // Construct advanced filters
+        const advanced_filters = [];
+
+        // 1. Product Filter
+        advanced_filters.push({
+            name: "Product",
+            key: "product",
+            description: "Filter activity by product",
+            filters: [
+                { label: "ASM", value: "ASM" },
+                { label: "VM", value: "VM" },
+                { label: "AIM", value: "AIM" },
+                { label: "VS", value: "VS" },
+                { label: "WAS", value: "WAS" },
+            ]
+        });
+
+        // 2. User Email Filter
+        const emailFilters = supportedFilters.users
+            .filter(Boolean)
+            .sort()
+            .map(email => ({ label: email, value: email }));
+        advanced_filters.push({
+            name: "User Email",
+            key: "email",
+            description: "Filter activity by user email",
+            filters: emailFilters
+        });
+
+        // 3. Action Type Filter
+        const actionTypeFilters = supportedFilters.actionType
+            .filter(Boolean)
+            .sort()
+            .map(actionType => ({ label: actionType, value: actionType }));
+        advanced_filters.push({
+            name: "Action Type",
+            key: "actionType",
+            description: "Filter activity by action type",
+            filters: actionTypeFilters
+        });
+
+        // 4. Method Filter
+        advanced_filters.push({
+            name: "Method",
+            key: "method",
+            description: "Filter activity by HTTP method",
+            filters: [
+                { label: "GET", value: "GET" },
+                { label: "POST", value: "POST" },
+                { label: "PUT", value: "PUT" },
+                { label: "DELETE", value: "DELETE" },
+                { label: "PATCH", value: "PATCH" },
+                { label: "HEAD", value: "HEAD" },
+                { label: "OPTIONS", value: "OPTIONS" },
+            ]
+        });
+
+        return { activity, total, filters: supportedFilters, advanced_filters };
     }
     catch (err) {
         console.log(err);
