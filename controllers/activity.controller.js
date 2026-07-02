@@ -84,6 +84,8 @@ const getOrgActivityWithStats = catchError(async (req, res) => {
         }
     });
 });
+
+
 const getAllActivity = catchError(async (req, res) => {
     const { orgId } = req.authenticatedService;
 
