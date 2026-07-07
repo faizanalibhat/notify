@@ -33,11 +33,38 @@ const getAllNotifications = async (req, res) => {
 
     const filter = {};
 
-    if (origin && origin != "all") {
-        if (origin === "mentions") {
-            filter.notificationType = "mention";
-        } else {
-            filter.origin = origin;
+    let originFilter = null;
+    if (origin && origin !== "all") {
+        let origins = [];
+        if (Array.isArray(origin)) {
+            origins = origin;
+        } else if (typeof origin === "string") {
+            origins = origin.split(",").map(o => o.trim()).filter(Boolean);
+        }
+
+        if (origins.length === 1) {
+            const singleOrigin = origins[0];
+            if (singleOrigin === "mentions") {
+                filter.notificationType = "mention";
+            } else {
+                filter.origin = singleOrigin;
+            }
+        } else if (origins.length > 1) {
+            const hasMentions = origins.includes("mentions");
+            const otherOrigins = origins.filter(o => o !== "mentions");
+
+            if (hasMentions && otherOrigins.length > 0) {
+                originFilter = {
+                    $or: [
+                        { notificationType: "mention" },
+                        { origin: { $in: otherOrigins } }
+                    ]
+                };
+            } else if (hasMentions) {
+                filter.notificationType = "mention";
+            } else {
+                filter.origin = { $in: otherOrigins };
+            }
         }
     }
 
@@ -52,6 +79,18 @@ const getAllNotifications = async (req, res) => {
             { title: { $regex: search, $options: 'i' } },
             { description: { $regex: search, $options: 'i' } },
         ];
+    }
+
+    if (originFilter) {
+        if (filter.$or) {
+            filter.$and = [
+                originFilter,
+                { $or: filter.$or }
+            ];
+            delete filter.$or;
+        } else {
+            Object.assign(filter, originFilter);
+        }
     }
 
     if (period) {
@@ -99,10 +138,34 @@ const markAllAsSeen = async (req, res) => {
 
     let filter = {};
     if (origin && origin !== "all") {
-        if (origin === "mentions") {
-            filter.notificationType = "mention";
-        } else {
-            filter.origin = origin;
+        let origins = [];
+        if (Array.isArray(origin)) {
+            origins = origin;
+        } else if (typeof origin === "string") {
+            origins = origin.split(",").map(o => o.trim()).filter(Boolean);
+        }
+
+        if (origins.length === 1) {
+            const singleOrigin = origins[0];
+            if (singleOrigin === "mentions") {
+                filter.notificationType = "mention";
+            } else {
+                filter.origin = singleOrigin;
+            }
+        } else if (origins.length > 1) {
+            const hasMentions = origins.includes("mentions");
+            const otherOrigins = origins.filter(o => o !== "mentions");
+
+            if (hasMentions && otherOrigins.length > 0) {
+                filter.$or = [
+                    { notificationType: "mention" },
+                    { origin: { $in: otherOrigins } }
+                ];
+            } else if (hasMentions) {
+                filter.notificationType = "mention";
+            } else {
+                filter.origin = { $in: otherOrigins };
+            }
         }
     }
 
