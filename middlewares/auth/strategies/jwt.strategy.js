@@ -34,7 +34,7 @@ const execute = async (req, options = {}) => {
     const requestData = {
       method: req.method,
       path: req.path,
-      headers: req.headers,
+      headers: (() => { const s = { ...req.headers }; ['authorization', 'cookie', 'x-api-key', 'service-api-key'].forEach(k => { if (s[k]) s[k] = '[REDACTED]'; }); return s; })(),
       query: req.query,
       params: req.params,
       body: req.body,
