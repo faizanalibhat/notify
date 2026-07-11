@@ -10,7 +10,6 @@ const initSwagger = require("./swagger");
 const { appConfig } = require("./config/app.config");
 
 
-// workers
 const emailWorker = require("./workers/email/email.worker");
 const activityWorker = require("./workers/activity/worker");
 const notificationWorker = require("./workers/notification.worker");
