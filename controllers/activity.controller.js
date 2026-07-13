@@ -93,7 +93,7 @@ const getAllActivity = catchError(async (req, res) => {
 
     const supportedFilters = {
         "origin": { attribute: "origin", isRegex: false },
-        "user.email": { attribute: "user.email", isRegex: true },
+        "user.email": { attribute: "user.email", isRegex: false },
         "endpoint": { attribute: "raw.originalUrl", isRegex: true },
         "ip": { attribute: "raw.ip", isRegex: true },
         "user": { attribute: "user.name", isRegex: true },
@@ -113,7 +113,7 @@ const getAllActivity = catchError(async (req, res) => {
             filter[attribute] = { $regex: req.query[key], $options: 'i' };
         }
         else {
-            filter[attribute] = { $in: req.query[key].split(",") };
+            filter[attribute] = { $in: req.query[key].split(",").map(val => val.trim()) };
         }
     }
 
