@@ -8,8 +8,8 @@ const getOrgActivityWithStats = catchError(async (req, res) => {
     const { page = 1, limit = 10, sortBy = 'createdAt', sortAs = 'desc', search = '' } = req.query;
 
     const supportedFilters = {
-        "product": { attribute: "origin", isRegex: false },
-        "email": { attribute: "user.email", isRegex: true },
+        "origin": { attribute: "origin", isRegex: false },
+        "user.email": { attribute: "user.email", isRegex: true },
         "endpoint": { attribute: "raw.originalUrl", isRegex: true },
         "ip": { attribute: "raw.ip", isRegex: true },
         "user": { attribute: "user.name", isRegex: true },
