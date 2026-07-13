@@ -6,14 +6,14 @@ const actorSchema = new mongoose.Schema({
     email: String,
     avatar: String,
     type: { type: String, default: "user" }
-}, { _id: false, id: false });
+}, { _id: false });
 
 const targetSchema = new mongoose.Schema({
     id: { type: String },
     type: { type: String },
     title: { type: String },
     url: { type: String }
-}, { _id: false, id: false, strict: false });
+}, { _id: false, strict: false });
 
 const resourceMeta = new mongoose.Schema({
     product: { type: String },
