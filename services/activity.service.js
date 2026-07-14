@@ -71,7 +71,7 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
 
         const supportedFilters = {};
 
-        supportedFilters.users = await Activity.distinct('user.email', { orgId: orgId });
+        supportedFilters.users = await Activity.distinct('user.name', { orgId: orgId });
         supportedFilters.product = ["ASM", "VM", "AIM", "VS", "WAS"];
         supportedFilters.actionType = await Activity.distinct('resourceMeta.actionType', { orgId: orgId });
         supportedFilters.method = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
@@ -93,16 +93,16 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
             ]
         });
 
-        // 2. User Email Filter
-        const emailFilters = supportedFilters.users
+        // 2. User Name Filter
+        const nameFilters = supportedFilters.users
             .filter(Boolean)
             .sort()
-            .map(email => ({ label: email, value: email }));
+            .map(name => ({ label: name, value: name }));
         advanced_filters.push({
-            name: "User Email",
-            key: "user.email",
-            description: "Filter activity by user email",
-            filters: emailFilters
+            name: "User Name",
+            key: "user",
+            description: "Filter activity by user name",
+            filters: nameFilters
         });
 
         // 3. Action Type Filter
