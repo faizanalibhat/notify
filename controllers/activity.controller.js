@@ -21,10 +21,22 @@ const getOrgActivityWithStats = catchError(async (req, res) => {
     for (let [key, value] of Object.entries(supportedFilters)) {
         if (!req.query[key]) continue;
         const { attribute, isRegex } = value;
+        let queryVal = req.query[key];
+        try {
+            queryVal = decodeURIComponent(queryVal);
+        } catch (e) {}
+
         if (isRegex) {
-            filter[attribute] = { $regex: req.query[key], $options: 'i' };
+            filter[attribute] = { $regex: queryVal, $options: 'i' };
         } else {
-            filter[attribute] = { $in: req.query[key].split(",") };
+            filter[attribute] = { $in: queryVal.split(",").map(val => {
+                const trimmed = val.trim();
+                try {
+                    return decodeURIComponent(trimmed);
+                } catch (e) {
+                    return trimmed;
+                }
+            }) };
         }
     }
 
@@ -109,28 +121,50 @@ const getAllActivity = catchError(async (req, res) => {
         if (!req.query[key]) continue;
 
         const { attribute, isRegex } = value;
+        let queryVal = req.query[key];
+        try {
+            queryVal = decodeURIComponent(queryVal);
+        } catch (e) {}
 
         if (isRegex) {
-            filter[attribute] = { $regex: req.query[key], $options: 'i' };
+            filter[attribute] = { $regex: queryVal, $options: 'i' };
         }
         else {
-            filter[attribute] = { $in: req.query[key].split(",").map(val => val.trim()) };
+            filter[attribute] = { $in: queryVal.split(",").map(val => {
+                const trimmed = val.trim();
+                try {
+                    return decodeURIComponent(trimmed);
+                } catch (e) {
+                    return trimmed;
+                }
+            }) };
         }
     }
 
     // add search filter
     if (search) {
+        let decSearch = search;
+        try {
+            decSearch = decodeURIComponent(search);
+        } catch (e) {}
         filter.$or = [
-            { action: { $regex: search, $options: 'i' } },
-            { 'user.name': { $regex: search, $options: 'i' } },
-            { 'user.email': { $regex: search, $options: 'i' } },
-            { 'raw.ip': { $regex: search, $options: 'i' } },
-            { 'raw.originalUrl': { $regex: search, $options: 'i' } },
+            { action: { $regex: decSearch, $options: 'i' } },
+            { 'user.name': { $regex: decSearch, $options: 'i' } },
+            { 'user.email': { $regex: decSearch, $options: 'i' } },
+            { 'raw.ip': { $regex: decSearch, $options: 'i' } },
+            { 'raw.originalUrl': { $regex: decSearch, $options: 'i' } },
         ]
     }
 
     if (email) {
-        const emails = email.split(",").map((e) => e.trim());
+        const emails = email.split(",").map((e) => {
+            const trimmed = e.trim();
+            try {
+                return decodeURIComponent(trimmed);
+            } catch (err) {
+                return trimmed;
+            }
+        });
 
         if (emails.length > 1) {
             // multiple emails → use $in
