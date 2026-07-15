@@ -71,7 +71,7 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
 
         const supportedFilters = {};
 
-        supportedFilters.users = await Activity.distinct('user.name', { orgId: orgId });
+        supportedFilters.users = await Activity.distinct('user.email', { orgId: orgId });
         supportedFilters.product = ["ASM", "VM", "AIM", "VS", "WAS"];
         supportedFilters.actionType = await Activity.distinct('resourceMeta.actionType', { orgId: orgId });
         supportedFilters.method = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
@@ -94,13 +94,25 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
         });
 
         // 2. User Name Filter
-        const nameFilters = supportedFilters.users
-            .filter(Boolean)
-            .sort()
-            .map(name => ({ label: name, value: name }));
+        const distinctUsers = await Activity.aggregate([
+            { $match: { orgId: orgId, "user.email": { $exists: true, $ne: null } } },
+            { $group: { _id: "$user.email", name: { $first: "$user.name" } } }
+        ]);
+
+        const nameFilters = distinctUsers
+            .map(u => {
+                const name = (u.name || "").trim();
+                return {
+                    label: name || u._id,
+                    value: u._id
+                };
+            })
+            .filter(item => item.value)
+            .sort((a, b) => a.label.localeCompare(b.label));
+
         advanced_filters.push({
             name: "User Name",
-            key: "user",
+            key: "user.email",
             description: "Filter activity by user name",
             filters: nameFilters
         });
