@@ -112,7 +112,7 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
 
         advanced_filters.push({
             name: "User Name",
-            key: "user.email",
+            key: "email",
             description: "Filter activity by user name",
             filters: nameFilters
         });
