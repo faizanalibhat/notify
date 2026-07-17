@@ -52,8 +52,8 @@ const getAllNotifications = async (orgId, userId, filter = {}, page = 1, limit =
         }
 
         // Apply other filters if any
-        if (filter.origin) query.origin = filter.origin;
-        if (filter.notificationType) query.notificationType = filter.notificationType;
+        const { unread, ...otherFilters } = filter;
+        Object.assign(query, otherFilters);
 
         const notifications = await Notification.find(query)
             .sort({ createdAt: -1 })

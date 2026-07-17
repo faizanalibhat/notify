@@ -93,16 +93,28 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
             ]
         });
 
-        // 2. User Email Filter
-        const emailFilters = supportedFilters.users
-            .filter(Boolean)
-            .sort()
-            .map(email => ({ label: email, value: email }));
+        // 2. User Name Filter
+        const distinctUsers = await Activity.aggregate([
+            { $match: { orgId: orgId, "user.email": { $exists: true, $ne: null } } },
+            { $group: { _id: "$user.email", name: { $first: "$user.name" } } }
+        ]);
+
+        const nameFilters = distinctUsers
+            .map(u => {
+                const name = (u.name || "").trim();
+                return {
+                    label: name || u._id,
+                    value: u._id
+                };
+            })
+            .filter(item => item.value)
+            .sort((a, b) => a.label.localeCompare(b.label));
+
         advanced_filters.push({
-            name: "User Email",
-            key: "user.email",
-            description: "Filter activity by user email",
-            filters: emailFilters
+            name: "User Name",
+            key: "email",
+            description: "Filter activity by user name",
+            filters: nameFilters
         });
 
         // 3. Action Type Filter
