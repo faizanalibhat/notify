@@ -18,7 +18,10 @@ function buildMongodbUrl() {
     const PORT = Config.get("MONGODB_PORT");
     const DB_NAME = appConfig.DB_NAME;
 
-    return `mongodb://${USER}:${PASS}@${HOST}:${PORT}/${DB_NAME}?authSource=admin`;
+    const isLocalDB = HOST === "localhost" || HOST === "127.0.0.1" || HOST === "mongodb";
+    const directConnection = isLocalDB ? "&directConnection=true" : "";
+
+    return `mongodb://${USER}:${PASS}@${HOST}:${PORT}/${DB_NAME}?authSource=admin${directConnection}`;
 }
 
 
