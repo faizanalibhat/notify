@@ -1,6 +1,10 @@
 const amqp = require('amqplib');
 const { buildRabbitmqUrl } = require('../utils/utils');
 
+const MAX_RETRIES = 5;
+const INITIAL_BACKOFF_MS = 1000;
+
+
 class RabbitMQ {
     constructor() {
         this.connection = null;
@@ -49,23 +53,28 @@ class RabbitMQ {
         }
 
         this.reconnectPromise = (async () => {
-            const maxAttempts = 10;
-            while (this.reconnectAttempt < maxAttempts) {
+            let delay = INITIAL_BACKOFF_MS;
+            while (this.reconnectAttempt < MAX_RETRIES) {
                 this.reconnectAttempt++;
-                const delay = Math.min(1000 * 2 ** this.reconnectAttempt, 30000); // Exponential backoff, max 30s
-                console.log(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempt})...`);
-                await new Promise(resolve => setTimeout(resolve, delay));
+                console.log(`[RabbitMQ] Connecting to broker (Attempt ${this.reconnectAttempt}/${MAX_RETRIES})...`);
                 try {
                     await this.connect();
                     this.reconnectAttempt = 0;
                     this.reconnectPromise = null;
                     return;
                 } catch (err) {
-                    console.error(`Reconnection failed (attempt ${this.reconnectAttempt}):`, err.message);
+                    console.error(`[RabbitMQ] Connection attempt ${this.reconnectAttempt} failed: ${err.message}`);
+                    if (this.reconnectAttempt === MAX_RETRIES) {
+                        console.error(`[RabbitMQ] Could not establish connection after ${MAX_RETRIES} attempts.`);
+                        process.exit(1);
+                    }
+                    const jitter = Math.random() * 200;
+                    const nextDelay = delay * 2 + jitter;
+                    console.log(`[RabbitMQ] Retrying in ${Math.round(nextDelay / 1000)}s...`);
+                    await new Promise(resolve => setTimeout(resolve, nextDelay));
+                    delay = nextDelay;
                 }
             }
-            console.error('Max reconnection attempts reached. Shutting down.');
-            process.exit(1);
         })();
 
         return this.reconnectPromise;
@@ -123,15 +132,15 @@ class RabbitMQ {
         }
 
         this.connection = await amqp.connect(this.url);
-        console.log('[+] Connected to RabbitMQ...');
+        console.log('[RabbitMQ] Connection established successfully.');
 
         this.connection.on('error', (err) => {
-            console.error('RabbitMQ Connection Error:', err.message);
+            console.error('[RabbitMQ] Connection error:', err.message);
             this.handleDisconnect();
         });
 
         this.connection.on('close', () => {
-            console.log('RabbitMQ connection closed');
+            console.warn('[RabbitMQ] Connection lost. Broker will attempt automatic reconnection...');
             this.handleDisconnect();
         });
 
