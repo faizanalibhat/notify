@@ -11,7 +11,7 @@ const MONGO_OPTIONS = {
   family: 4
 };
 
-const MAX_RETRIES = 5;
+const MAX_RETRIES = 8;
 const INITIAL_BACKOFF_MS = 1000;
 
 function setupConnectionListeners() {
