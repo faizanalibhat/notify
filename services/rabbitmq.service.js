@@ -35,8 +35,9 @@ class RabbitMQ {
     handleDisconnect() {
         if (this.connection) {
             try {
-                this.connection.removeAllListeners();
-                this.connection.close();
+                this.connection.removeAllListeners('error');
+                this.connection.removeAllListeners('close');
+                this.connection.close().catch(() => {});
             } catch (err) {
                 // Ignore close errors
             }
@@ -123,7 +124,8 @@ class RabbitMQ {
 
         if (this.connection) {
             try {
-                this.connection.removeAllListeners();
+                this.connection.removeAllListeners('error');
+                this.connection.removeAllListeners('close');
                 await this.connection.close();
             } catch (err) {
                 // Ignore close error
