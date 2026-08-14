@@ -36,7 +36,9 @@ class RabbitMQ {
         if (this.connection) {
             try {
                 this.connection.removeAllListeners('error');
+                this.connection.on('error', () => {}); // Catch socket errors during close
                 this.connection.removeAllListeners('close');
+                this.connection.on('close', () => {});
                 this.connection.close().catch(() => {});
             } catch (err) {
                 // Ignore close errors
@@ -125,7 +127,9 @@ class RabbitMQ {
         if (this.connection) {
             try {
                 this.connection.removeAllListeners('error');
+                this.connection.on('error', () => {}); // Catch socket errors during close
                 this.connection.removeAllListeners('close');
+                this.connection.on('close', () => {});
                 await this.connection.close();
             } catch (err) {
                 // Ignore close error
