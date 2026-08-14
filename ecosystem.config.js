@@ -4,7 +4,7 @@ module.exports = {
         script: "app.js",
         instances: 1,
         exec_mode: "cluster",
-        autorestart: true,
+        autorestart: false,
         max_memory_restart: "1G",
         watch: false,
         env: {
