@@ -26,8 +26,13 @@ const execute = async (req, options = {}) => {
     throw error;
   }
 
-  if (options.requiredOrgAccess && decodedToken.orgAccess && !decodedToken.orgAccess.includes(options.requiredOrgAccess)) {
-    throw new Error(`You do not have access to SnapSec ${options.requiredOrgAccess}`);
+  if (options.requiredOrgAccess) {
+    if (decodedToken.orgAccess && !decodedToken.orgAccess.includes(options.requiredOrgAccess)) {
+      throw new Error(`Your organization does not have access to SnapSec ${options.requiredOrgAccess}`);
+    }
+    if (decodedToken.accessTo && Array.isArray(decodedToken.accessTo) && !decodedToken.accessTo.includes(options.requiredOrgAccess)) {
+      throw new Error(`You do not have personal access to SnapSec ${options.requiredOrgAccess}`);
+    }
   }
 
   if (!options.skipActivityLog) {
