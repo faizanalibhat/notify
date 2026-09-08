@@ -204,10 +204,10 @@ const testEmailNotification = async (req, res) => {
             channels: ["email"],
             template_id: targetSlug,
             notification: {
-                origin: "test",
-                resourceMeta: { resource: "test" }
+                origin: "test"
             },
             context: {
+                resource: "test",
                 user_name: "Test User",
                 subject: "Test Notification",
                 title: "Test Title",
