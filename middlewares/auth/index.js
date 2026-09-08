@@ -135,7 +135,7 @@ function auth(options = {}) {
 			errorResponse.licenseExpiry = lastError.licenseExpiry;
 		}
 
-		return res.status(401).json(errorResponse);
+		return res.status(lastError?.status || 401).json(errorResponse);
 	};
 }
 
