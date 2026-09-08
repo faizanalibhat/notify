@@ -26,6 +26,7 @@ const notificationSchema = new mongoose.Schema({
     userIds: { type: [String], index: true },
     type: { type: String },
     title: { type: String },
+    // DEPRECATED: title_html was used for visual demonstration and is not used actively in Notifications itself. Remove during next refactoring.
     title_html: { type: String },
     description: { type: String },
     origin: { type: String, required: true },
@@ -37,6 +38,7 @@ const notificationSchema = new mongoose.Schema({
     context: { type: mongoose.Schema.Types.Mixed },
     event_key: { type: String },
     ui_context: { type: mongoose.Schema.Types.Mixed },
+    // DEPRECATED: This field is deprecated and is only present to prevent breaking changes. Use `context` instead.
     resourceMeta: { type: resourceMeta },
 }, { timestamps: true, strict: false });
 
