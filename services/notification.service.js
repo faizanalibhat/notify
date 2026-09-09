@@ -99,7 +99,6 @@ const getAllNotifications = async (orgId, userId, filter = {}, page = 1, limit =
                 origin: n.origin,
                 notificationType: n.notificationType,
                 event_key: n.event_key,
-                title_html: n.title_html,
                 createdAt: n.createdAt
             };
         });

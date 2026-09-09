@@ -21,12 +21,8 @@
         <div class="content">
             <p>Hello {{#if firstName}}{{firstName}}{{else}}{{name}}{{/if}},</p>
 
-            {{#if title_html}}
-                <p>{{{title_html}}}</p>
-            {{else}}
-                {{#if description}}
-                    <p>{{description}}</p>
-                {{/if}}
+            {{#if description}}
+                <p>{{description}}</p>
             {{/if}}
 
             {{#if openTickets}}

@@ -94,7 +94,6 @@ async function notificationHandler(payload, msg, channel) {
                 }
             }
 
-            let title_html = payload.title_html || notification.title_html;
 
             let obj = {
                 orgId,
@@ -105,7 +104,6 @@ async function notificationHandler(payload, msg, channel) {
                 context: payload.context || notification.context,
                 event_key: payload.event_key,
                 ui_context: payload.ui_context,
-                title_html,
                 origin: payload.origin || notification.origin
             };
 

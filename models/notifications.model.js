@@ -20,8 +20,6 @@ const notificationSchema = new mongoose.Schema({
     userIds: { type: [String], index: true },
     type: { type: String },
     title: { type: String },
-    // DEPRECATED: title_html was used for visual demonstration and is not used actively in Notifications itself. Remove during next refactoring.
-    title_html: { type: String },
     description: { type: String },
     origin: { type: String, required: true },
     seen: { type: Boolean, default: false }, // Keeping for backward compatibility or single-user docs
