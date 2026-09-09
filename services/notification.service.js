@@ -73,11 +73,11 @@ const getAllNotifications = async (orgId, userId, filter = {}, page = 1, limit =
         const userMap = await resolveUserMetadata(actorIds);
 
         const denoisedNotifications = notifications.map(n => {
-            // Construct target from resourceMeta/resourceUrl if not present
+            // Construct target from context/resourceUrl if not present
             const target = n.target || {
-                id: n.resourceMeta?.resourceItemId,
-                type: n.resourceMeta?.resource,
-                title: n.resourceMeta?.resourceItemName,
+                id: n.context?.resourceItemId,
+                type: n.context?.resource,
+                title: n.context?.title,
                 url: n.resourceUrl
             };
 
