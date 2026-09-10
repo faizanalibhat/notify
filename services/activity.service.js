@@ -69,12 +69,7 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
         const total = await Activity.countDocuments({ orgId, ...filter });
 
 
-        const supportedFilters = {};
-
-        supportedFilters.users = await Activity.distinct('user.email', { orgId: orgId });
-        supportedFilters.product = ["ASM", "VM", "AIM", "VS", "WAS"];
-        supportedFilters.actionType = await Activity.distinct('resourceMeta.actionType', { orgId: orgId });
-        supportedFilters.method = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
+        const distinctActionTypes = await Activity.distinct('resourceMeta.actionType', { orgId: orgId });
 
         // Construct advanced filters
         const advanced_filters = [];
@@ -118,7 +113,7 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
         });
 
         // 3. Action Type Filter
-        const actionTypeFilters = supportedFilters.actionType
+        const actionTypeFilters = distinctActionTypes
             .filter(Boolean)
             .sort()
             .map(actionType => ({ label: actionType, value: actionType }));
@@ -145,7 +140,7 @@ const getAllActivity = async (orgId, filter = {}, page = 1, limit = 10, sortBy =
             ]
         });
 
-        return { activity, total, filters: supportedFilters, advanced_filters };
+        return { activity, total, advanced_filters };
     }
     catch (err) {
         console.log(err);

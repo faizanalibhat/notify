@@ -18,7 +18,7 @@ function buildMongodbUrl() {
     const PORT = Config.get("MONGODB_PORT");
     const DB_NAME = appConfig.DB_NAME;
 
-    return `mongodb://${USER}:${PASS}@${HOST}:${PORT}/${DB_NAME}?authSource=admin`;
+    return `mongodb://${USER}:${PASS}@${HOST}:${PORT}/${DB_NAME}?authSource=admin&replicaSet=rs0`;
 }
 
 
