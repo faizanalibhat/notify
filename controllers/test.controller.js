@@ -79,16 +79,14 @@ exports.testAllTemplates = async (req, res) => {
                     context: {
                         ...tmpl.context,
                         email: email, // Context often needs email for robohash images etc
-                        base_url: "app.snapsec.co"
+                        base_url: "app.snapsec.co",
+                        product: "test",
+                        resource: tmpl.id
                     },
                     recievers: [{ email: email }],
                     notification: {
                         title: tmpl.context.subject || "Test Notification",
-                        origin: "test",
-                        resourceMeta: {
-                            product: "test",
-                            resource: tmpl.id
-                        }
+                        origin: "test"
                     },
                     channels: ["email"]
                 };

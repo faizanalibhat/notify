@@ -46,11 +46,14 @@ async function notificationHandler(payload, msg, channel) {
             }
         });
 
-        // Originator Exclusion: Strictly filter out the actor from both DELIVERY and STORAGE
+        // Store all resolved target recipients for in-app storage
+        const allResolvedRecipients = Array.from(uniqueRecipientsMap.values());
+
+        // Originator Exclusion: Strictly filter out the actor from external DELIVERY channels
         if (actorId) {
             uniqueRecipientsMap.forEach((val, key) => {
                 if (String(val.userId) === String(actorId)) {
-                    console.log(`[NOTIFY] Strictly excluding Actor ${actorId} from all channels`);
+                    console.log(`[NOTIFY] Strictly excluding Actor ${actorId} from external delivery channels`);
                     uniqueRecipientsMap.delete(key);
                 }
             });
@@ -76,9 +79,9 @@ async function notificationHandler(payload, msg, channel) {
             // New structure: userIds (owners), actor, target
             let userIds = payload.owners || payload.userIds || notification.owners || notification.userIds || [];
             
-            // Fallback: If no owners/userIds provided, use the filtered list
-            if (!userIds.length && uniqueRecipientsMap.size > 0) {
-                userIds = Array.from(uniqueRecipientsMap.values()).map(r => r.userId).filter(Boolean);
+            // Fallback: If no owners/userIds provided, use all resolved recipients for in-app storage
+            if (!userIds.length && allResolvedRecipients.length > 0) {
+                userIds = allResolvedRecipients.map(r => r.userId).filter(Boolean);
             }
 
             console.log(`[NOTIFY] Storing notification for UserIDs: ${JSON.stringify(userIds)}`);
@@ -94,7 +97,6 @@ async function notificationHandler(payload, msg, channel) {
                 }
             }
 
-            let title_html = payload.title_html || notification.title_html;
 
             let obj = {
                 orgId,
@@ -105,7 +107,6 @@ async function notificationHandler(payload, msg, channel) {
                 context: payload.context || notification.context,
                 event_key: payload.event_key,
                 ui_context: payload.ui_context,
-                title_html,
                 origin: payload.origin || notification.origin
             };
 
